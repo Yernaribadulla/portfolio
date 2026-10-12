@@ -1,8 +1,22 @@
-# Yernar Ibadulla | AI Integration and Backend Portfolio
+# Yernar Ibadulla | AI Integration and Backend Engineer
 
-I build AI-powered backend systems, multimodal applications and business automations that connect local and hosted LLMs with real operational workflows.
+I build AI-powered backend systems, multimodal applications and business automations that connect LLMs with real APIs, user workflows and operational data.
 
-## AI Integration and Backend Development
+My strongest area is reliable AI integration: structured outputs, validation, fallback handling, local models, browser automation and human-controlled actions.
+
+## Featured Projects
+
+| Project | What it demonstrates | Stack |
+| --- | --- | --- |
+| [AI-Hunter](https://github.com/Yernaribadulla/AI-Hunter) | Local-first vacancy analysis and supervised application workflow | Python, Playwright, Pydantic, LM Studio |
+| [Outreach Agent](https://github.com/Yernaribadulla/outreach-agent) | Evidence-first B2B discovery, website research and lead qualification | Python, SQLite, OpenStreetMap, local LLM |
+| [VoxBridge](https://github.com/Yernaribadulla/voxbridge) | Real-time local voice translation for Windows | Python, faster-whisper, PySide6, LM Studio |
+
+## Engineering Focus
+
+Python backend development, FastAPI, REST APIs, webhooks, LLM integration, Function Calling, local-first AI, browser automation, CRM and calendar integrations, workflow automation and desktop applications.
+
+## How I Build AI Systems
 
 ### Problem
 
@@ -23,6 +37,12 @@ Python, FastAPI, REST APIs, webhooks, Pydantic, SQLite, PostgreSQL, React, TypeS
 ### Result
 
 The systems I build reduce repetitive manual work, connect fragmented business processes and make AI features safer to operate in real workflows.
+
+## Engineering Principles
+
+I treat an LLM as one component of a software system, not as the source of truth. Important decisions are supported by schemas, deterministic rules, provenance, deduplication, retries, explicit states and human review.
+
+The projects below are portfolio and prototype work at different levels of maturity. Their READMEs describe current functionality, setup requirements and known limitations rather than presenting unfinished features as production capabilities.
 
 ## AI-Hunter
 
@@ -45,6 +65,10 @@ Python, Playwright, Pydantic, LM Studio, Qwen, JSONL, PySide6 and browser automa
 ### Result
 
 The system supports local analysis, role scoring, Russian and English cover letters, duplicate protection, persistent state and confirmation-first applications. It does not bypass CAPTCHA or anti-bot protection.
+
+### Evidence and limitations
+
+The repository includes tests, safety documentation and a reproducible local workflow. Running the full application requires Windows, a configured browser session and a compatible local LLM through LM Studio.
 
 ### GitHub
 
@@ -72,6 +96,10 @@ Python, SQLite, OpenStreetMap, Nominatim, Overpass, LM Studio, local LLMs, HTML,
 
 The platform preserves source provenance, distinguishes CONFIRMED, INFERRED, UNKNOWN and NOT_DETECTED states, prevents duplicate recipients and keeps real sending disabled by default until human review.
 
+### Evidence and limitations
+
+The MVP focuses on reliable research and outreach preparation. It is intentionally conservative when information is missing and does not claim that an inferred fact is confirmed.
+
 ### GitHub
 
 https://github.com/Yernaribadulla/outreach-agent
@@ -98,6 +126,10 @@ Python, PySide6, SoundCard, WASAPI, faster-whisper, CTranslate2, LM Studio, Open
 
 VoxBridge provides local audio processing, shared multilingual speech recognition, Mouse 5 route priority, stale-result rejection, an always-on-top overlay and explicit controls for pause, visibility and settings. Audio and transcripts are not saved or uploaded by the application.
 
+### Evidence and limitations
+
+The project is designed for Windows and depends on compatible audio devices, local speech-recognition models and sufficient CPU/GPU resources. Translation latency and recognition quality depend on the selected model and hardware.
+
 ### GitHub
 
 https://github.com/Yernaribadulla/voxbridge
@@ -109,6 +141,22 @@ I also work with ComfyUI for local image generation, image processing and visual
 ### Selected visual work
 
 ![ComfyUI visual experiment](assets/Sparkle_00002_.png)
+
+## Selected Delivery Experience
+
+In addition to portfolio projects, I have built and maintained AI and automation systems for real workflows, including:
+
+Python and FastAPI multimodal applications with local Qwen models and React/TypeScript frontends.
+
+AI assistants connected to amoCRM, Google Calendar, payment systems and automation platforms such as Make, n8n and NextBot.
+
+ITSM process automation that reduced initial incident response time to 15–20 minutes, reduced repeated requests by 30% and improved SLA compliance to more than 95%.
+
+QR-based customer feedback and analytics systems with Google Sheets, employee-level attribution and external-platform conversion tracking.
+
+## Open to Collaboration
+
+I am interested in remote or freelance work involving Python backend development, AI integrations, local LLM applications, workflow automation, API integrations and internal business tools.
 
 ## Other Projects
 
