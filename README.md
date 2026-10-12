@@ -12,6 +12,16 @@ My strongest area is reliable AI integration: structured outputs, validation, fa
 | [Outreach Agent](https://github.com/Yernaribadulla/outreach-agent) | Evidence-first B2B discovery, website research and lead qualification | Python, SQLite, OpenStreetMap, local LLM |
 | [VoxBridge](https://github.com/Yernaribadulla/voxbridge) | Real-time local voice translation for Windows | Python, faster-whisper, PySide6, LM Studio |
 
+### Project Previews
+
+AI-Hunter vacancy collection and supervised application workflow:
+
+![AI-Hunter vacancy collection and supervised application workflow](assets/screenshots/ai-hunter-workflow.png)
+
+Outreach Agent dashboard with researched leads, source data and AI analysis results:
+
+![Outreach Agent dashboard showing researched leads](assets/screenshots/outreach-agent-dashboard.png)
+
 ## Engineering Focus
 
 Python backend development, FastAPI, REST APIs, webhooks, LLM integration, Function Calling, local-first AI, browser automation, CRM and calendar integrations, workflow automation and desktop applications.
