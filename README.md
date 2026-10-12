@@ -120,4 +120,4 @@ Shtil Cafe QR feedback and analytics platform: https://github.com/Yernaribadulla
 
 Email: yernaribadulla@gmail.com
 
-LinkedIn: https://www.linkedin.com/in/ернар-и-бадулла-a66050420/
+LinkedIn: https://www.linkedin.com/in/%D0%B5%D1%80%D0%BD%D0%B0%D1%80-%D0%B8%D0%B1%D0%B0%D0%B4%D1%83%D0%BB%D0%BB%D0%B0-a66050420/
