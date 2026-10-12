@@ -46,29 +46,13 @@ The projects below are portfolio and prototype work at different levels of matur
 
 ## AI-Hunter
 
-### Problem
-
-Job search requires repeated vacancy discovery, requirement matching, cover-letter writing and application tracking.
-
-### Solution
-
 AI-Hunter is a local-first HeadHunter vacancy discovery and supervised application assistant. It collects vacancies with Playwright, analyzes them through a local LLM, validates structured results and applies deterministic safety rules before any final application action.
 
-### Architecture
+The workflow is: vacancy collection, normalization, deduplication, local LLM analysis, Pydantic validation, safety decision, cover-letter validation and human-confirmed browser submission. It supports persistent JSONL state, Russian and English cover letters and duplicate protection. It does not bypass CAPTCHA or anti-bot protection.
 
-Discovery queries → Playwright collection → normalization and deduplication → local LLM analysis → Pydantic validation → deterministic safety decision → cover-letter validation → supervised application workflow → persistent JSONL state.
+The repository includes tests, safety documentation and setup instructions. A full run requires Windows, a configured browser session and a compatible local model through LM Studio.
 
-### Technologies
-
-Python, Playwright, Pydantic, LM Studio, Qwen, JSONL, PySide6 and browser automation.
-
-### Result
-
-The system supports local analysis, role scoring, Russian and English cover letters, duplicate protection, persistent state and confirmation-first applications. It does not bypass CAPTCHA or anti-bot protection.
-
-### Evidence and limitations
-
-The repository includes tests, safety documentation and a reproducible local workflow. Running the full application requires Windows, a configured browser session and a compatible local LLM through LM Studio.
+Technologies: Python, Playwright, Pydantic, LM Studio, Qwen, JSONL and PySide6.
 
 ### GitHub
 
@@ -76,29 +60,13 @@ https://github.com/Yernaribadulla/AI-Hunter
 
 ## Outreach Agent
 
-### Problem
-
-B2B outreach requires finding relevant businesses, researching their digital presence, identifying useful opportunities and writing messages based on evidence.
-
-### Solution
-
 Outreach Agent is a local-first sales intelligence platform for company discovery, website research, qualification and personalized outreach preparation.
 
-### Architecture
+Its pipeline combines discovery, entity resolution, website auditing, source provenance, local LLM analysis, lead qualification and human-reviewed outreach drafts. It distinguishes CONFIRMED, INFERRED, UNKNOWN and NOT_DETECTED states, prevents duplicate recipients and keeps real sending disabled by default.
 
-Discovery → entity resolution → website audit → evidence and provenance → local LLM analysis → qualification → outreach draft → human review.
+The MVP focuses on reliable research and preparation. It is intentionally conservative when information is missing and does not present inferred facts as confirmed data.
 
-### Technologies
-
-Python, SQLite, OpenStreetMap, Nominatim, Overpass, LM Studio, local LLMs, HTML, CSS, JavaScript and Git.
-
-### Result
-
-The platform preserves source provenance, distinguishes CONFIRMED, INFERRED, UNKNOWN and NOT_DETECTED states, prevents duplicate recipients and keeps real sending disabled by default until human review.
-
-### Evidence and limitations
-
-The MVP focuses on reliable research and outreach preparation. It is intentionally conservative when information is missing and does not claim that an inferred fact is confirmed.
+Technologies: Python, SQLite, OpenStreetMap, Nominatim, Overpass, LM Studio, HTML, CSS, JavaScript and Git.
 
 ### GitHub
 
@@ -106,29 +74,13 @@ https://github.com/Yernaribadulla/outreach-agent
 
 ## VoxBridge
 
-### Problem
+VoxBridge is a Windows desktop voice translator for gaming, calls and bilingual conversations. It captures system audio, recognizes English speech locally, translates it into Russian and displays the result in an always-on-top overlay. Mouse 5 switches priority to microphone input and translates Russian speech into English.
 
-Gamers and bilingual users need fast two-way voice translation during live conversations without sending audio to a remote service.
+The application combines WASAPI and SoundCard capture, energy-based segmentation, faster-whisper recognition, a route-priority state machine, local LM Studio translation and a PySide6 overlay. Audio and transcripts are not saved or uploaded by the application.
 
-### Solution
+The project requires Windows, compatible audio devices and local speech-recognition and translation models. Actual latency depends on the selected models and hardware.
 
-VoxBridge is a Windows desktop voice translator that captures speaker loopback, recognizes English speech, translates it to Russian and displays both languages in an always-on-top overlay. Holding Mouse 5 switches the route to microphone input and translates Russian speech to English.
-
-### Architecture
-
-WASAPI and SoundCard capture → energy-based segmentation → multilingual faster-whisper → route-priority state machine → local LM Studio translation → Qt overlay and push-to-talk controls.
-
-### Technologies
-
-Python, PySide6, SoundCard, WASAPI, faster-whisper, CTranslate2, LM Studio, OpenAI-compatible APIs, global hotkeys and Windows desktop integration.
-
-### Result
-
-VoxBridge provides local audio processing, shared multilingual speech recognition, Mouse 5 route priority, stale-result rejection, an always-on-top overlay and explicit controls for pause, visibility and settings. Audio and transcripts are not saved or uploaded by the application.
-
-### Evidence and limitations
-
-The project is designed for Windows and depends on compatible audio devices, local speech-recognition models and sufficient CPU/GPU resources. Translation latency and recognition quality depend on the selected model and hardware.
+Technologies: Python, PySide6, SoundCard, WASAPI, faster-whisper, CTranslate2, LM Studio, OpenAI-compatible APIs and Windows desktop integration.
 
 ### GitHub
 
@@ -150,13 +102,19 @@ Python and FastAPI multimodal applications with local Qwen models and React/Type
 
 AI assistants connected to amoCRM, Google Calendar, payment systems and automation platforms such as Make, n8n and NextBot.
 
-ITSM process automation that reduced initial incident response time to 15–20 minutes, reduced repeated requests by 30% and improved SLA compliance to more than 95%.
+ITSM process automation during my tenure at KCOI. I designed the incident classification and routing logic, contributed to the knowledge base and release checklists, and automated reporting and operational workflows. Internal operational tracking showed approximately 15–20 minutes for initial routing, around 30% fewer repeated requests and SLA compliance above 95% during the measured period. These results describe the workflows I helped implement, not a claim that I independently delivered the entire ITSM platform.
 
 QR-based customer feedback and analytics systems with Google Sheets, employee-level attribution and external-platform conversion tracking.
 
 ## Open to Collaboration
 
 I am interested in remote or freelance work involving Python backend development, AI integrations, local LLM applications, workflow automation, API integrations and internal business tools.
+
+## Engineering Evidence
+
+The individual repositories contain the implementation details, setup instructions, tests, safety notes and known limitations for each project. The portfolio README intentionally stays concise; architecture diagrams, configuration examples and failure-handling details belong in the relevant project documentation.
+
+When evaluating these projects, the most relevant evidence includes structured validation, deterministic safety rules, duplicate protection, provenance tracking, persistent state, supervised actions and explicit handling of malformed or unavailable data.
 
 ## Other Projects
 
