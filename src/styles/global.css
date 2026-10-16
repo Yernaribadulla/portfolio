@@ -1188,4 +1188,35 @@ body:has(.experience-stage.is-active){overflow:hidden;overscroll-behavior:none}.
 
 .intro-blob{position:absolute;right:3%;top:14%;width:43vw;height:64vh;opacity:var(--aura-opacity,1);z-index:3;mask-image:radial-gradient(ellipse,#000 55%,transparent 76%)}
 @media(max-width:760px){.intro-blob{width:68vw;height:38vh;top:46%;right:0}}
+
+/* A phone opens the OS directly; its apps behave like full-screen mobile pages. */
+@media (max-width: 699px) {
+  .desktop-main { inset: 38px 0 0; }
+  .desktop-greeting { top: clamp(230px, 33svh, 290px); }
+  .desktop-greeting .eyebrow { font-size: 9px; }
+  .desktop-greeting p span { font-size: 11px; }
+  .desktop-icon { font-size: 12px; }
+  .desktop-icon .app-icon { width: 48px; height: 48px; }
+  .dock { bottom: max(12px, env(safe-area-inset-bottom)); }
+  .replay { display: none; }
+  .desktop:has(.os-window) .dock { display: none; }
+  .os-window,
+  .os-window.maximized {
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+    background: #15202c;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+  .window-title { height: 52px; min-height: 52px; font-size: 13px; cursor: default; }
+  .window-controls button:not(:last-child) { display: none; }
+  .window-controls button:last-child { width: 44px; height: 44px; color: #e0e7ed; }
+  .window-footer { display: none; }
+  .window-body { padding-bottom: env(safe-area-inset-bottom); }
+}
 footer.page-footer{display:none}

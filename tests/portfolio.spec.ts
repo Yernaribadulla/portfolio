@@ -136,6 +136,19 @@ test("mobile and project links", async ({ page }) => {
     ),
   ).toBe(true);
 });
+test("phone opens a readable OS without loading the 3D scene", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./");
+  await expect(page.locator(".experience-stage")).toHaveClass(/is-simple/);
+  await expect(page.locator(".scene canvas")).toHaveCount(0);
+  await page.getByRole("button", { name: "Открыть Штиль", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Штиль", exact: true });
+  await expect(dialog).toBeVisible();
+  await expect.poll(async () => (await dialog.boundingBox())!.width).toBe(390);
+  await expect(page.getByRole("navigation", { name: "Панель приложений" })).toBeHidden();
+  await page.getByRole("button", { name: "Закрыть Штиль" }).click();
+  await expect(page.getByRole("navigation", { name: "Панель приложений" })).toBeVisible();
+});
 test("reduced motion avoids loading WebGL", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("./");

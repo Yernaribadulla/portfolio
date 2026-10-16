@@ -46,6 +46,7 @@ export default function App() {
   const [simple, setSimple] = useState(
     () =>
       matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      matchMedia("(max-width: 699px)").matches ||
       new URLSearchParams(location.search).has("lite") ||
       location.hash === "#desktop" ||
       !hasWebGL(),
