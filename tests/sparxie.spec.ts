@@ -69,6 +69,53 @@ test("Sparxie lands on the dock only when above it", async ({ page }) => {
   expect(positions.side).toBeGreaterThan(positions.height - 8);
   expect(positions.center).toBeLessThanOrEqual(positions.dockTop + 3);
   expect(positions.center).toBeGreaterThan(positions.dockTop - 8);
+  const sidePixel = await canvas.evaluate((element) => {
+    const c = element as HTMLCanvasElement, bounds = c.getBoundingClientRect();
+    const data = c.getContext("2d")!.getImageData(0, 0, c.width, c.height).data;
+    for (let y = c.height - 50; y < c.height - 8; y++)
+      for (let x = 150; x < 230; x++)
+        if (data[(y * c.width + x) * 4 + 3] > 200) return { x: bounds.x + x, y: bounds.y + y };
+    return null;
+  });
+  expect(sidePixel).not.toBeNull();
+  const dock = await page.locator(".dock").boundingBox();
+  await page.mouse.move(sidePixel!.x, sidePixel!.y);
+  await page.mouse.down();
+  await expect(canvas).toHaveAttribute("data-dragging", "true");
+  await page.mouse.move(dock!.x + 45, sidePixel!.y, { steps: 6 });
+  await page.mouse.up();
+  await page.waitForTimeout(500);
+  const insideDock = await canvas.evaluate((element) => {
+    const c = element as HTMLCanvasElement, bounds = c.getBoundingClientRect();
+    const dock = document.querySelector(".dock")!.getBoundingClientRect();
+    const data = c.getContext("2d")!.getImageData(0, 0, c.width, c.height).data;
+    for (let y = Math.ceil(dock.top - bounds.top + 4); y < Math.min(c.height, dock.bottom - bounds.top); y++)
+      for (let x = Math.ceil(dock.left - bounds.left + 4); x < dock.right - bounds.left - 4; x++)
+        if (data[(y * c.width + x) * 4 + 3] > 180) return true;
+    return false;
+  });
+  expect(insideDock).toBe(false);
+});
+
+test("a settled pile stays still", async ({ page }) => {
+  await page.goto("./?lite=1");
+  await page.evaluate(() => { Math.random = () => .5; });
+  const canvas = page.locator(".sparxie-rain");
+  for (let i = 0; i < 6; i++) await page.getByRole("button", { name: "Вызвать объект" }).click();
+  await expect(canvas).toHaveAttribute("data-active", "6");
+  await page.waitForTimeout(6500);
+  const sample = async () => canvas.evaluate((element) => {
+    const c = element as HTMLCanvasElement;
+    const context = c.getContext("2d")!;
+    const x = Math.floor(c.width / 2) - 100;
+    return Array.from(context.getImageData(x, c.height - 340, 200, 260).data);
+  });
+  const before = await sample();
+  await page.waitForTimeout(400);
+  const after = await sample();
+  let changed = 0;
+  for (let i = 3; i < before.length; i += 4) if (before[i] !== after[i]) changed++;
+  expect(changed).toBeLessThan(60);
 });
 
 test("Sparxie can be held and thrown with a finger", async ({ browser }) => {
@@ -77,6 +124,9 @@ test("Sparxie can be held and thrown with a finger", async ({ browser }) => {
   try {
     await page.addInitScript(() => { Math.random = () => .12; });
     await page.goto("./");
+    const outreach = page.locator('.desktop-icon[data-app="outreach"] .app-icon');
+    await expect(outreach.locator("svg.outreach-mark")).toBeVisible();
+    await expect(outreach).toHaveText("");
     await page.getByRole("button", { name: "Вызвать объект" }).click();
     const canvas = page.locator(".sparxie-rain");
     await page.waitForTimeout(2300);

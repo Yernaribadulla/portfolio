@@ -116,7 +116,7 @@ export const apps: { id: AppId; title: string; mark: string; color: string }[] =
   [
     { id: "about", title: "Обо мне", mark: "YI", color: "cream" },
     { id: "ai-hunter", title: "AI-Hunter", mark: "⌖", color: "lime" },
-    { id: "outreach", title: "Outreach Agent", mark: "↗", color: "blue" },
+    { id: "outreach", title: "Outreach Agent", mark: "", color: "blue" },
     { id: "voxbridge", title: "VoxBridge", mark: "≋", color: "purple" },
     { id: "shtil", title: "Штиль", mark: "≈", color: "teal" },
     { id: "terminal", title: "Терминал", mark: ">_", color: "dark" },

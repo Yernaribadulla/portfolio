@@ -153,7 +153,7 @@ test("reduced motion avoids loading WebGL", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("./");
   await expect(page.locator(".experience-stage")).toHaveClass(/is-active/);
-  await expect(page.locator("canvas")).toHaveCount(0);
+  await expect(page.locator(".scene canvas")).toHaveCount(0);
   await page
     .getByRole("button", { name: "Открыть Контакты", exact: true })
     .click();

@@ -382,6 +382,7 @@ a:hover {
   text-shadow: none;
   border: 1px solid #ffffff22;
 }
+.outreach-mark { width: 57%; height: 57%; flex: none; }
 .cream {
   background: linear-gradient(145deg, #f7ebd8, #c6bcae);
   color: #383c35;

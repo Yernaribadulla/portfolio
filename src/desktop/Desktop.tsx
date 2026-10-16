@@ -43,6 +43,9 @@ interface WindowState {
   minimized: boolean;
 }
 const external = { target: "_blank", rel: "noreferrer" };
+const appMark = (app: (typeof apps)[number]) => app.id === "outreach"
+  ? <ArrowUpRight className="outreach-mark" aria-hidden="true" strokeWidth={1.8} />
+  : app.mark;
 function ProjectContent({ id }: { id: AppId }) {
   const project = projects.find((p) => p.id === id)!;
   return (
@@ -409,7 +412,7 @@ export default function Desktop({
               onClick={() => open(app.id)}
               aria-label={`Открыть ${app.title}`}
             >
-              <span className={`app-icon ${app.color}`}>{app.mark}</span>
+              <span className={`app-icon ${app.color}`}>{appMark(app)}</span>
               <span>{app.title}</span>
             </button>
           ))}
@@ -476,7 +479,7 @@ export default function Desktop({
                     drag.current = null;
                   }}
                 >
-                  <span className={`tiny-icon ${app.color}`}>{app.mark}</span>
+                  <span className={`tiny-icon ${app.color}`}>{appMark(app)}</span>
                   <b>{app.title}</b>
                   <div className="window-controls">
                     <button
@@ -530,7 +533,7 @@ export default function Desktop({
             aria-label={`${app.title} — панель`}
             title={app.title}
           >
-            <span className={`app-icon ${app.color}`}>{app.mark}</span>
+            <span className={`app-icon ${app.color}`}>{appMark(app)}</span>
             <i
               className={windows.some((w) => w.id === app.id) ? "running" : ""}
             />

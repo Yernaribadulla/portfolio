@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 
 const SIZE = 48, HALF = 24, RADIUS = 33, CELL = 72, LIMIT = 500, DT = 1 / 60;
-type Body = { x: number; y: number; vx: number; vy: number; angle: number; spin: number; rest: number; asleep: boolean };
+type Body = { x: number; y: number; vx: number; vy: number; angle: number; spin: number;
+  rest: number; still: number; anchorX: number; anchorY: number; asleep: boolean };
 type Trail = { x: number; y: number; t: number };
 
 export default function SparxieRain() {
@@ -14,7 +15,7 @@ export default function SparxieRain() {
     const bodies: Body[] = [], trail: Trail[] = [];
     let mask: Uint8Array | undefined, outline: { x: number; y: number }[] = [];
     let width = 0, height = 0, frame = 0, previous = 0, accumulator = 0, pending = 0, lastSpawn = 0;
-    let dockLeft = Infinity, dockRight = -Infinity, dockTop = 0;
+    let dockLeft = Infinity, dockRight = -Infinity, dockTop = 0, dockBottom = 0;
     let held: { body: Body; id: number; dx: number; dy: number; x: number; y: number; t: number } | undefined;
     image.onload = () => {
       const sample = document.createElement("canvas"); sample.width = sample.height = SIZE;
@@ -56,11 +57,16 @@ export default function SparxieRain() {
         if (opaque(a, x, y) && opaque(b, x, y)) return true;
       return false;
     };
-    const floorOffset = (body: Body) => {
+    const silhouette = (body: Body) => {
       const c = Math.cos(body.angle), s = Math.sin(body.angle);
-      let low = -Infinity;
-      for (const p of outline) low = Math.max(low, p.x * s + p.y * c);
-      return Number.isFinite(low) ? low : HALF;
+      let left = Infinity, right = -Infinity, top = Infinity, bottom = -Infinity;
+      for (const p of outline) {
+        const x = p.x * c - p.y * s, y = p.x * s + p.y * c;
+        left = Math.min(left, x); right = Math.max(right, x);
+        top = Math.min(top, y); bottom = Math.max(bottom, y);
+      }
+      return Number.isFinite(bottom) ? { left, right, top, bottom } :
+        { left: -HALF, right: HALF, top: -HALF, bottom: HALF };
     };
     const updateGround = () => {
       const canvasRect = canvas.getBoundingClientRect(), dockRect = dock?.getBoundingClientRect();
@@ -71,20 +77,34 @@ export default function SparxieRain() {
       dockLeft = (dockRect.left - canvasRect.left) * scaleX;
       dockRight = (dockRect.right - canvasRect.left) * scaleX;
       dockTop = (dockRect.top - canvasRect.top) * scaleY;
+      dockBottom = (dockRect.bottom - canvasRect.top) * scaleY;
     };
-    // The dock is a real ledge; elsewhere the sprites fall to the screen's bottom edge.
-    const ground = (x: number) => x >= dockLeft && x <= dockRight ? dockTop : height;
-    const wake = (body: Body) => { body.asleep = false; body.rest = 0; };
+    const overDock = (body: Body, shape: ReturnType<typeof silhouette>) =>
+      body.x + shape.right > dockLeft && body.x + shape.left < dockRight;
+    const wake = (body: Body) => {
+      body.asleep = false; body.rest = body.still = 0; body.anchorX = body.x; body.anchorY = body.y;
+    };
     const step = () => {
       for (const body of bodies) {
         if (body.asleep || body === held?.body) continue;
+        const oldX = body.x, oldBottom = body.y + silhouette(body).bottom;
         body.vy = Math.min(body.vy + 850 * DT, 780);
         body.x += body.vx * DT; body.y += body.vy * DT; body.angle += body.spin * DT;
         body.vx *= .99; body.spin *= .985;
-        const floor = ground(body.x) - floorOffset(body);
-        if (body.y > floor) {
-          body.y = floor; body.vy = Math.abs(body.vy) > 65 ? -body.vy * .25 : 0;
-          body.vx *= .86; body.spin *= .7;
+        const shape = silhouette(body);
+        // Entering from a side hits the dock's wall; only a sprite falling from above lands on top.
+        if (body.y + shape.bottom > dockTop && body.y + shape.top < dockBottom) {
+          if (oldX + shape.right <= dockLeft && body.x + shape.right > dockLeft) {
+            body.x = dockLeft - shape.right; body.vx *= -.18; body.spin *= .65;
+          } else if (oldX + shape.left >= dockRight && body.x + shape.left < dockRight) {
+            body.x = dockRight - shape.left; body.vx *= -.18; body.spin *= .65;
+          }
+        }
+        const landsOnDock = overDock(body, shape) && oldBottom <= dockTop + 3;
+        const floor = (landsOnDock ? dockTop : height) - shape.bottom;
+        if (body.y >= floor) {
+          body.y = floor; body.vy = Math.abs(body.vy) > 100 ? -body.vy * .16 : 0;
+          body.vx *= .78; body.spin *= .5;
         }
         if (body.x < HALF || body.x > width - HALF) {
           body.x = Math.max(HALF, Math.min(width - HALF, body.x));
@@ -111,23 +131,47 @@ export default function SparxieRain() {
         const len = Math.max(1, Math.hypot(dx, dy)), nx = dx / len, ny = dy / len;
         const af = a.asleep || a === held?.body, bf = b.asleep || b === held?.body;
         if (Math.abs(ny) > .35) supported.add(ny > 0 ? a : b);
-        if (!af) { a.x -= nx * (bf ? 3 : 1.5); a.y -= ny * (bf ? 3 : 1.5); }
-        if (!bf) { b.x += nx * (af ? 3 : 1.5); b.y += ny * (af ? 3 : 1.5); }
         const closing = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
+        const correction = Math.min(Math.abs(closing) > 90 ? 1.4 : .35,
+          Math.max(.1, (RADIUS * 2 - len) * .055));
+        if (!af) { a.x -= nx * (bf ? correction * 2 : correction); a.y -= ny * (bf ? correction * 2 : correction); }
+        if (!bf) { b.x += nx * (af ? correction * 2 : correction); b.y += ny * (af ? correction * 2 : correction); }
         if (closing > 0) {
-          const impulse = closing * .35;
-          if (!af) { a.vx -= nx * impulse; a.vy -= ny * impulse; a.spin -= nx * impulse * .012; }
-          if (!bf) { b.vx += nx * impulse; b.vy += ny * impulse; b.spin += nx * impulse * .012; }
+          const impulse = closing * (af || bf ? 1 : .5) * (closing > 140 ? 1.08 : 1);
+          if (!af) { a.vx -= nx * impulse; a.vy -= ny * impulse; a.spin -= nx * impulse * .004; }
+          if (!bf) { b.vx += nx * impulse; b.vy += ny * impulse; b.spin += nx * impulse * .004; }
           if (a.asleep && closing > 90) wake(a);
           if (b.asleep && closing > 90) wake(b);
         }
+        if (!af) a.spin *= .8;
+        if (!bf) b.spin *= .8;
           }
       }
       for (const body of bodies) {
         if (body.asleep || body === held?.body) continue;
-        const supportedNow = body.y >= ground(body.x) - floorOffset(body) - 4 || supported.has(body);
-        body.rest = supportedNow && Math.hypot(body.vx, body.vy) < 28 && Math.abs(body.spin) < .35 ? body.rest + 1 : 0;
-        if (body.rest > 30) { body.asleep = true; body.vx = body.vy = body.spin = 0; }
+        const shape = silhouette(body);
+        // Pair resolution must not push a settled sprite back through the dock.
+        if (overDock(body, shape) && body.y + shape.bottom > dockTop && body.y + shape.top < dockBottom) {
+          if (body.y < dockTop) {
+            body.y = dockTop - shape.bottom; body.vy = Math.min(0, body.vy);
+          } else if (body.x < (dockLeft + dockRight) / 2) {
+            body.x = dockLeft - shape.right; body.vx = Math.min(0, body.vx);
+          } else {
+            body.x = dockRight - shape.left; body.vx = Math.max(0, body.vx);
+          }
+        }
+        const bottom = body.y + shape.bottom;
+        const supportedNow = bottom >= height - 4 ||
+          (overDock(body, shape) && Math.abs(bottom - dockTop) < 5) || supported.has(body);
+        body.rest = supportedNow && Math.hypot(body.vx, body.vy) < 42 && Math.abs(body.spin) < .5
+          ? body.rest + 1 : Math.max(0, body.rest - 2);
+        const movement = Math.hypot(body.x - body.anchorX, body.y - body.anchorY);
+        body.still = movement < .6 && Math.abs(body.spin) < .6
+          ? body.still + 1 : Math.max(0, body.still - 3);
+        body.anchorX = body.x; body.anchorY = body.y;
+        if (body.rest > 24 || (body.still > 36 && Math.hypot(body.vx, body.vy) < 80 && Math.abs(body.spin) < 1)) {
+          body.asleep = true; body.vx = body.vy = body.spin = 0;
+        }
       }
     };
     const render = (now: number) => {
@@ -136,7 +180,7 @@ export default function SparxieRain() {
       if (pending && now - lastSpawn >= 35) {
         bodies.push({ x: HALF + Math.random() * Math.max(0, width - SIZE), y: -HALF,
           vx: (Math.random() - .5) * 80, vy: 0, angle: (Math.random() - .5) * .5,
-          spin: (Math.random() - .5) * 2, rest: 0, asleep: false });
+          spin: (Math.random() - .5) * 2, rest: 0, still: 0, anchorX: 0, anchorY: -HALF, asleep: false });
         pending--; lastSpawn = now;
         canvas.dataset.active = String(bodies.length);
       }
@@ -178,8 +222,19 @@ export default function SparxieRain() {
       b.spin = Math.max(-15, Math.min(15, b.vx * .014));
       // A lagged tilt while held makes the sprite swing behind the cursor.
       b.angle += (Math.max(-.85, Math.min(.85, b.vx * .001)) - Math.sin(b.angle) * .1) * .22;
+      const oldX = b.x;
+      const oldBottom = b.y + silhouette(b).bottom;
       b.x = Math.max(HALF, Math.min(width - HALF, p.x + held.dx));
       b.y = Math.max(HALF, Math.min(height - HALF, p.y + held.dy));
+      const shape = silhouette(b);
+      if (b.y + shape.bottom > dockTop && b.y + shape.top < dockBottom) {
+        if (overDock(b, shape) && oldBottom <= dockTop + 3)
+          b.y = dockTop - shape.bottom;
+        else if (oldX + shape.right <= dockLeft && b.x + shape.right > dockLeft)
+          b.x = dockLeft - shape.right;
+        else if (oldX + shape.left >= dockRight && b.x + shape.left < dockRight)
+          b.x = dockRight - shape.left;
+      }
       held.x = p.x; held.y = p.y; held.t = now;
       trail.push({ x: p.x, y: p.y, t: now }); if (trail.length > 20) trail.shift();
     };
