@@ -27,6 +27,7 @@ import {
 } from "../data/projects";
 import WindowFrame from "./WindowFrame";
 import Terminal from "./Terminal";
+import SparxieRain from "./SparxieRain";
 const localTime = () =>
   new Intl.DateTimeFormat(undefined, {
     hour: "2-digit",
@@ -428,7 +429,11 @@ export default function Desktop({
           <button onClick={() => open("about")}>
             Рад знакомству <ArrowUpRight size={18} />
           </button>
+          <button onClick={() => window.dispatchEvent(new Event("summon-sparxie"))}>
+            Вызвать объект <ArrowUpRight size={18} />
+          </button>
         </div>
+        <SparxieRain />
         <div className="desktop-hint">
           <Folder size={16} />
           <span>

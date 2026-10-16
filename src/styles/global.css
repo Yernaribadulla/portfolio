@@ -934,6 +934,14 @@ a:hover {
     font-size: 8px;
   }
 }
+.sparxie-rain {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 6;
+}
 @container desktop (max-width: 760px) {
   .menubar {
     padding: 0 14px;
