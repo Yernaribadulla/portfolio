@@ -9,10 +9,12 @@ export default function SparxieRain() {
   useEffect(() => {
     const canvas = canvasRef.current, layer = canvas?.parentElement, ctx = canvas?.getContext("2d");
     if (!canvas || !layer || !ctx) return;
+    const dock = layer.parentElement?.querySelector<HTMLElement>(".dock");
     const image = new Image(); image.src = `${import.meta.env.BASE_URL}sparxie.png`;
     const bodies: Body[] = [], trail: Trail[] = [];
     let mask: Uint8Array | undefined, outline: { x: number; y: number }[] = [];
     let width = 0, height = 0, frame = 0, previous = 0, accumulator = 0, pending = 0, lastSpawn = 0;
+    let dockLeft = Infinity, dockRight = -Infinity, dockTop = 0;
     let held: { body: Body; id: number; dx: number; dy: number; x: number; y: number; t: number } | undefined;
     image.onload = () => {
       const sample = document.createElement("canvas"); sample.width = sample.height = SIZE;
@@ -60,7 +62,18 @@ export default function SparxieRain() {
       for (const p of outline) low = Math.max(low, p.x * s + p.y * c);
       return Number.isFinite(low) ? low : HALF;
     };
-    const ground = () => height - (width < 700 ? 90 : 96);
+    const updateGround = () => {
+      const canvasRect = canvas.getBoundingClientRect(), dockRect = dock?.getBoundingClientRect();
+      if (!dockRect?.width || !dockRect.height || !canvasRect.width || !canvasRect.height) {
+        dockLeft = Infinity; dockRight = -Infinity; return;
+      }
+      const scaleX = width / canvasRect.width, scaleY = height / canvasRect.height;
+      dockLeft = (dockRect.left - canvasRect.left) * scaleX;
+      dockRight = (dockRect.right - canvasRect.left) * scaleX;
+      dockTop = (dockRect.top - canvasRect.top) * scaleY;
+    };
+    // The dock is a real ledge; elsewhere the sprites fall to the screen's bottom edge.
+    const ground = (x: number) => x >= dockLeft && x <= dockRight ? dockTop : height;
     const wake = (body: Body) => { body.asleep = false; body.rest = 0; };
     const step = () => {
       for (const body of bodies) {
@@ -68,7 +81,7 @@ export default function SparxieRain() {
         body.vy = Math.min(body.vy + 850 * DT, 780);
         body.x += body.vx * DT; body.y += body.vy * DT; body.angle += body.spin * DT;
         body.vx *= .99; body.spin *= .985;
-        const floor = ground() - floorOffset(body);
+        const floor = ground(body.x) - floorOffset(body);
         if (body.y > floor) {
           body.y = floor; body.vy = Math.abs(body.vy) > 65 ? -body.vy * .25 : 0;
           body.vx *= .86; body.spin *= .7;
@@ -112,12 +125,13 @@ export default function SparxieRain() {
       }
       for (const body of bodies) {
         if (body.asleep || body === held?.body) continue;
-        const supportedNow = body.y >= ground() - floorOffset(body) - 4 || supported.has(body);
+        const supportedNow = body.y >= ground(body.x) - floorOffset(body) - 4 || supported.has(body);
         body.rest = supportedNow && Math.hypot(body.vx, body.vy) < 28 && Math.abs(body.spin) < .35 ? body.rest + 1 : 0;
         if (body.rest > 30) { body.asleep = true; body.vx = body.vy = body.spin = 0; }
       }
     };
     const render = (now: number) => {
+      updateGround();
       // Bursts enter in a short stream so hundreds do not start in one overlapping row.
       if (pending && now - lastSpawn >= 35) {
         bodies.push({ x: HALF + Math.random() * Math.max(0, width - SIZE), y: -HALF,
