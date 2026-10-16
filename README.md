@@ -1,139 +1,117 @@
-# Yernar Ibadulla | AI Integration and Backend Engineer
+# Yernar Ibadulla
 
-I build AI-powered backend systems, multimodal applications and business automations that connect LLMs with real APIs, user workflows and operational data.
+**AI Integration & Python Backend Engineer · Astana, Kazakhstan**
 
-My strongest area is reliable AI integration: structured outputs, validation, fallback handling, local models, browser automation and human-controlled actions.
+I build Python applications that connect local language models to APIs, business data and desktop workflows. My projects cover job search, company research and speech translation, with structured validation and review controls around external actions.
 
-## Featured Projects
+[Email](mailto:yernaribadulla@gmail.com) · [LinkedIn](https://www.linkedin.com/in/%D0%B5%D1%80%D0%BD%D0%B0%D1%80-%D0%B8%D0%B1%D0%B0%D0%B4%D1%83%D0%BB%D0%BB%D0%B0-a66050420/) · [GitHub](https://github.com/Yernaribadulla)
 
-| Project | What it demonstrates | Stack |
+## Selected work
+
+| Project | What I built | Explore |
 | --- | --- | --- |
-| [AI-Hunter](https://github.com/Yernaribadulla/AI-Hunter) | Local-first vacancy analysis and supervised application workflow | Python, Playwright, Pydantic, LM Studio |
-| [Outreach Agent](https://github.com/Yernaribadulla/outreach-agent) | Evidence-first B2B discovery, website research and lead qualification | Python, SQLite, OpenStreetMap, local LLM |
-| [VoxBridge](https://github.com/Yernaribadulla/voxbridge) | Real-time local voice translation for Windows | Python, faster-whisper, PySide6, LM Studio |
+| **AI-Hunter** | HeadHunter discovery, vacancy scoring and supervised applications | [Code & setup](https://github.com/Yernaribadulla/AI-Hunter) |
+| **Outreach Agent** | Company research, evidence-backed qualification and reviewed email drafts | [Python application](https://github.com/Yernaribadulla/outreach-agent/tree/master/outreach-agent) · [Architecture](https://github.com/Yernaribadulla/outreach-agent/blob/master/docs/architecture.md) |
+| **VoxBridge** | Windows subtitle translation with microphone-priority processing | [Code & setup](https://github.com/Yernaribadulla/voxbridge) · [Architecture](https://github.com/Yernaribadulla/voxbridge/blob/main/docs/architecture.md) |
+| **Штиль / Shtil** | A cafe QR feedback flow and a companion analytics dashboard | [QR demo](https://yernaribadulla.github.io/qrcode2/?demo=1) · [Dashboard demo](https://yernaribadulla.github.io/AdminFeedback/?demo=1) |
 
-### Project Previews
+### AI-Hunter · Controlled job applications
 
-AI-Hunter vacancy collection and supervised application workflow:
+I built a workflow for collecting vacancies, checking fit against a candidate profile and preparing Russian or English cover letters.
 
-![AI-Hunter vacancy collection and supervised application workflow](assets/screenshots/ai-hunter-workflow.png)
+- Collect and deduplicate vacancies through a persistent Playwright browser session.
+- Validate local-model output with Pydantic, then apply Python rules for salary, experience, language and application eligibility.
+- Keep JSONL history and pause for human review before submission in confirmation mode.
 
-Outreach Agent dashboard with researched leads, source data and AI analysis results:
+**Stack:** Python, Playwright, Pydantic, LM Studio / Qwen, PySide6.
 
-![Outreach Agent dashboard showing researched leads](assets/screenshots/outreach-agent-dashboard.png)
+**Engineering evidence:** [decision policy](https://github.com/Yernaribadulla/AI-Hunter/blob/main/safety.py) · [regression tests](https://github.com/Yernaribadulla/AI-Hunter/tree/main/tests).
 
-## Engineering Focus
+The [native desktop refactor](https://github.com/Yernaribadulla/AI-Hunter/pull/2) is in an open draft PR. It adds an offline workspace, a model-backed history table and separate process, bridge and storage modules. The current default branch contains the earlier desktop.
 
-Python backend development, FastAPI, REST APIs, webhooks, LLM integration, Function Calling, local-first AI, browser automation, CRM and calendar integrations, workflow automation and desktop applications.
+### Outreach Agent · Research before outreach
 
-## How I Build AI Systems
+I built a local B2B research pipeline that connects company discovery, website auditing and source evidence to qualification and draft preparation.
 
-### Problem
+- Preserve source URLs and distinguish confirmed, inferred, unknown and undetected signals.
+- Qualify leads with deterministic checks for business fit, evidence, contactability and model confidence.
+- Persist jobs, drafts and selection in SQLite; keep approval separate from sending. Simulated sending is the default, with a preview and confirmation for real SMTP batches.
 
-Businesses need AI features that work with real APIs, user sessions, databases, calendars, CRMs and existing operational processes.
+**Stack:** Python, SQLite, LM Studio / Qwen, HTML, CSS, JavaScript.
 
-### Solution
+**Engineering evidence:** [qualification logic](https://github.com/Yernaribadulla/outreach-agent/blob/master/outreach-agent/app/qualification.py) · [operator workflow](https://github.com/Yernaribadulla/outreach-agent/blob/master/outreach-agent/README.md) · [tests](https://github.com/Yernaribadulla/outreach-agent/tree/master/outreach-agent/tests).
 
-I design and implement reliable Python backends, LLM workflows and automation systems with structured outputs, validation, error handling, fallback scenarios and human review where needed.
+The repository also contains a separate DENTARA website. The links above lead to the Python application.
 
-### Architecture
+### VoxBridge · Local speech translation
 
-Typical solutions combine a Python or FastAPI backend, an OpenAI-compatible LLM interface, structured validation with Pydantic, REST APIs, webhooks, browser automation, external services and a frontend connected through stable contracts.
+I built a Windows overlay that captures English system audio, recognizes speech with Whisper and displays Russian subtitles. Holding Mouse 5 prioritizes the microphone for a Russian-to-English reply.
 
-### Technologies
+- Share one multilingual Whisper model between both audio routes.
+- Bound recognition and translation queues, prioritize microphone work and reject stale results after a route change.
+- Keep audio and transcripts in memory; use the configured LM Studio endpoint for translation.
 
-Python, FastAPI, REST APIs, webhooks, Pydantic, SQLite, PostgreSQL, React, TypeScript, JavaScript, Playwright, LM Studio, Qwen, Function Calling, n8n, Make, amoCRM API, Google Calendar API, Robokassa, OpenStreetMap, Nominatim and Overpass.
+**Stack:** Python, PySide6, SoundCard / WASAPI, faster-whisper, CTranslate2, LM Studio.
 
-### Result
+**Engineering evidence:** [priority queues](https://github.com/Yernaribadulla/voxbridge/blob/main/app/core/jobs.py) · [tests](https://github.com/Yernaribadulla/voxbridge/tree/main/tests) · [setup and limits](https://github.com/Yernaribadulla/voxbridge#readme).
 
-The systems I build reduce repetitive manual work, connect fragmented business processes and make AI features safer to operate in real workflows.
+VoxBridge displays subtitles; it does not synthesize speech. Latency and overlay compatibility depend on the hardware and application.
 
-## Engineering Principles
+<details>
+<summary><strong>Project screenshots: AI-Hunter and Outreach Agent</strong></summary>
 
-I treat an LLM as one component of a software system, not as the source of truth. Important decisions are supported by schemas, deterministic rules, provenance, deduplication, retries, explicit states and human review.
+#### AI-Hunter: vacancy collection and browser review
 
-The projects below are portfolio and prototype work at different levels of maturity. Their READMEs describe current functionality, setup requirements and known limitations rather than presenting unfinished features as production capabilities.
+![AI-Hunter collecting vacancies and opening a vacancy for supervised review](assets/screenshots/ai-hunter-workflow.png)
 
-## AI-Hunter
+#### Outreach Agent: researched leads and analysis
 
-AI-Hunter is a local-first HeadHunter vacancy discovery and supervised application assistant. It collects vacancies with Playwright, analyzes them through a local LLM, validates structured results and applies deterministic safety rules before any final application action.
+![Outreach Agent dashboard with company research, sources and analysis](assets/screenshots/outreach-agent-dashboard.png)
 
-The workflow is: vacancy collection, normalization, deduplication, local LLM analysis, Pydantic validation, safety decision, cover-letter validation and human-confirmed browser submission. It supports persistent JSONL state, Russian and English cover letters and duplicate protection. It does not bypass CAPTCHA or anti-bot protection.
+These captures show earlier interface versions. Refer to each repository for its current implementation.
 
-The repository includes tests, safety documentation and setup instructions. A full run requires Windows, a configured browser session and a compatible local model through LM Studio.
+</details>
 
-Technologies: Python, Playwright, Pydantic, LM Studio, Qwen, JSONL and PySide6.
+## Business tools & frontend work
 
-### GitHub
+### Штиль / Shtil · Feedback and analytics
 
-https://github.com/Yernaribadulla/AI-Hunter
+I built two connected interfaces for a cafe in Aktau: a monitor with employee QR codes and a dashboard for reviewing guest feedback.
 
-## Outreach Agent
+| Component | Implementation | Try it |
+| --- | --- | --- |
+| [qrcode2](https://github.com/Yernaribadulla/qrcode2) | Personal QR links, a mobile rating form, Apps Script requests and a WebGL water background with pause and fallback states | [Monitor demo](https://yernaribadulla.github.io/qrcode2/?demo=1) · [Mobile form demo](https://yernaribadulla.github.io/qrcode2/feedback.html?staff=mukha&demo=1) |
+| [AdminFeedback](https://github.com/Yernaribadulla/AdminFeedback) | Google Sheets / GViz data, employee and period filters, rating trends, review search and partial-failure states | [Analytics demo](https://yernaribadulla.github.io/AdminFeedback/?demo=1) |
 
-Outreach Agent is a local-first sales intelligence platform for company discovery, website research, qualification and personalized outreach preparation.
+Both repositories include unit tests and Playwright / axe checks. The linked demos use sample data without writing guest feedback or loading the working Sheets. Scan, review and platform-click totals are separate metrics; they do not establish individual guest conversion.
 
-Its pipeline combines discovery, entity resolution, website auditing, source provenance, local LLM analysis, lead qualification and human-reviewed outreach drafts. It distinguishes CONFIRMED, INFERRED, UNKNOWN and NOT_DETECTED states, prevents duplicate recipients and keeps real sending disabled by default.
+### DENTARA · Dental website concept
 
-The MVP focuses on reliable research and preparation. It is intentionally conservative when information is missing and does not present inferred facts as confirmed data.
+I built an editorial dental website with responsive layouts, light and dark themes, keyboard-accessible dialogs and a local appointment-request preview.
 
-Technologies: Python, SQLite, OpenStreetMap, Nominatim, Overpass, LM Studio, HTML, CSS, JavaScript and Git.
+[Live concept](https://yernaribadulla.github.io/Dentist_eng_commercial/) · [Source & checks](https://github.com/Yernaribadulla/Dentist_eng_commercial)
 
-### GitHub
+The clinic content is illustrative. The form previews a request without sending it or booking an appointment.
 
-https://github.com/Yernaribadulla/outreach-agent
+## Delivery experience
 
-## VoxBridge
+- **KCOI, ITSM automation:** contributed incident classification and routing, knowledge-base work, release checklists and reporting. Internal team tracking reported 15–20 minutes for initial routing, about 30% fewer repeated requests and SLA compliance above 95% during the measured period.
+- **AI assistants and business integrations:** connected assistants to amoCRM, Google Calendar and payment workflows using APIs, Make, n8n and NextBot.
 
-VoxBridge is a Windows desktop voice translator for gaming, calls and bilingual conversations. It captures system audio, recognizes English speech locally, translates it into Russian and displays the result in an always-on-top overlay. Mouse 5 switches priority to microphone input and translates Russian speech into English.
+The KCOI figures describe team workflows I contributed to. Public repositories provide implementation evidence for the projects above; they do not contain private client systems.
 
-The application combines WASAPI and SoundCard capture, energy-based segmentation, faster-whisper recognition, a route-priority state machine, local LM Studio translation and a PySide6 overlay. Audio and transcripts are not saved or uploaded by the application.
+## Tools I work with
 
-The project requires Windows, compatible audio devices and local speech-recognition and translation models. Actual latency depends on the selected models and hardware.
+| Area | Tools |
+| --- | --- |
+| Python & data | Python, FastAPI, Pydantic, REST APIs, webhooks, SQLite, PostgreSQL |
+| AI & desktop | LM Studio, Qwen, OpenAI-compatible APIs, faster-whisper, PySide6, Playwright |
+| Interfaces & integrations | JavaScript, TypeScript, React, HTML/CSS, Google Sheets, amoCRM, Google Calendar, n8n, Make |
 
-Technologies: Python, PySide6, SoundCard, WASAPI, faster-whisper, CTranslate2, LM Studio, OpenAI-compatible APIs and Windows desktop integration.
+I also use ComfyUI for local image-generation workflows. [Selected visual experiment](assets/Sparkle_00002_.png).
 
-### GitHub
+## Work with me
 
-https://github.com/Yernaribadulla/voxbridge
+I am open to remote and freelance work on Python backends, AI integrations and internal business tools. I can take a workflow from API integration and data validation through to an operator interface and documented setup.
 
-## ComfyUI and Visual AI Workflows
-
-I also work with ComfyUI for local image generation, image processing and visual experimentation. I use node-based workflows to test models, conditioning, upscaling and image pipeline variations alongside software projects.
-
-### Selected visual work
-
-![ComfyUI visual experiment](assets/Sparkle_00002_.png)
-
-## Selected Delivery Experience
-
-In addition to portfolio projects, I have built and maintained AI and automation systems for real workflows, including:
-
-Python and FastAPI multimodal applications with local Qwen models and React/TypeScript frontends.
-
-AI assistants connected to amoCRM, Google Calendar, payment systems and automation platforms such as Make, n8n and NextBot.
-
-ITSM process automation during my tenure at KCOI. I designed the incident classification and routing logic, contributed to the knowledge base and release checklists, and automated reporting and operational workflows. Internal operational tracking showed approximately 15–20 minutes for initial routing, around 30% fewer repeated requests and SLA compliance above 95% during the measured period. These results describe the workflows I helped implement, not a claim that I independently delivered the entire ITSM platform.
-
-QR-based customer feedback and analytics systems with Google Sheets, employee-level attribution and external-platform conversion tracking.
-
-## Open to Collaboration
-
-I am interested in remote or freelance work involving Python backend development, AI integrations, local LLM applications, workflow automation, API integrations and internal business tools.
-
-## Engineering Evidence
-
-The individual repositories contain the implementation details, setup instructions, tests, safety notes and known limitations for each project. The portfolio README intentionally stays concise; architecture diagrams, configuration examples and failure-handling details belong in the relevant project documentation.
-
-When evaluating these projects, the most relevant evidence includes structured validation, deterministic safety rules, duplicate protection, provenance tracking, persistent state, supervised actions and explicit handling of malformed or unavailable data.
-
-## Other Projects
-
-DENTARA dental clinic experience: https://yernaribadulla.github.io/Dentist_rus_commercial/
-
-Shtil Cafe QR feedback and analytics platform: https://github.com/Yernaribadulla/AdminFeedback
-
-## Contact
-
-Email: yernaribadulla@gmail.com
-
-LinkedIn: https://www.linkedin.com/in/%D0%B5%D1%80%D0%BD%D0%B0%D1%80-%D0%B8%D0%B1%D0%B0%D0%B4%D1%83%D0%BB%D0%BB%D0%B0-a66050420/
+Contact: [yernaribadulla@gmail.com](mailto:yernaribadulla@gmail.com) · [LinkedIn](https://www.linkedin.com/in/%D0%B5%D1%80%D0%BD%D0%B0%D1%80-%D0%B8%D0%B1%D0%B0%D0%B4%D1%83%D0%BB%D0%BB%D0%B0-a66050420/).
