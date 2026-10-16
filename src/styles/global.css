@@ -943,6 +943,7 @@ a:hover {
   pointer-events: none;
   z-index: 6;
 }
+.experience-stage:not(.is-active) .sparxie-rain { opacity: 0; }
 .desktop:not(:has(.os-window)) .desktop-main { touch-action: none; }
 @container desktop (max-width: 760px) {
   .menubar {

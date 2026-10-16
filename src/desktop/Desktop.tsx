@@ -436,7 +436,7 @@ export default function Desktop({
             Вызвать объект <ArrowUpRight size={18} />
           </button>
         </div>
-        <SparxieRain />
+        <SparxieRain active={active} />
         <div className="desktop-hint">
           <Folder size={16} />
           <span>

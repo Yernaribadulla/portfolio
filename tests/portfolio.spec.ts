@@ -23,6 +23,9 @@ test("cinematic forward / reverse, skip, resize and persistent windows", async (
   await expect(page.locator(".experience-stage")).not.toHaveClass(/is-active/);
   await page.getByRole("button", { name: "Пропустить интро" }).click();
   await expect(page.locator(".experience-stage")).toHaveClass(/is-active/);
+  await page.getByRole("button", { name: "Вызвать объект" }).click();
+  const sparxie = page.locator(".sparxie-rain");
+  await expect(sparxie).toHaveAttribute("data-count", "1");
   await page
     .getByRole("button", { name: "Открыть AI-Hunter", exact: true })
     .click();
@@ -39,8 +42,12 @@ test("cinematic forward / reverse, skip, resize and persistent windows", async (
   await page.mouse.wheel(0,-100);
   await expect(page.locator(".desktop-surface")).toHaveAttribute("inert", "");
   await page.waitForTimeout(1100);
+  await expect.poll(() => sparxie.evaluate(el => getComputedStyle(el).opacity)).toBe("0");
+  await page.screenshot({ path: "../../work/scene-after-exit.png" });
   await page.mouse.wheel(0,1000);
   await expect(page.locator(".experience-stage")).toHaveClass(/is-active/);
+  await expect.poll(() => sparxie.evaluate(el => getComputedStyle(el).opacity)).toBe("1");
+  await expect(sparxie).toHaveAttribute("data-count", "1");
   await expect(
     page.getByRole("dialog", { name: "AI-Hunter", exact: true }),
   ).toBeVisible();

@@ -5,8 +5,10 @@ type Body = { x: number; y: number; vx: number; vy: number; angle: number; spin:
   rest: number; still: number; anchorX: number; anchorY: number; asleep: boolean };
 type Trail = { x: number; y: number; t: number };
 
-export default function SparxieRain() {
+export default function SparxieRain({ active }: { active: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const activeRef = useRef(active);
+  activeRef.current = active;
   useEffect(() => {
     const canvas = canvasRef.current, layer = canvas?.parentElement, ctx = canvas?.getContext("2d");
     if (!canvas || !layer || !ctx) return;
@@ -175,6 +177,11 @@ export default function SparxieRain() {
       }
     };
     const render = (now: number) => {
+      if (!activeRef.current) {
+        accumulator = 0; previous = now; trail.length = 0;
+        frame = requestAnimationFrame(render);
+        return;
+      }
       updateGround();
       // Bursts enter in a short stream so hundreds do not start in one overlapping row.
       if (pending && now - lastSpawn >= 35) {
@@ -184,8 +191,9 @@ export default function SparxieRain() {
         pending--; lastSpawn = now;
         canvas.dataset.active = String(bodies.length);
       }
-      accumulator = Math.min(accumulator + Math.min(now - (previous || now), 50), 100); previous = now;
+      accumulator = Math.min(accumulator + Math.min(now - (previous || now), 50), 100);
       while (accumulator >= DT * 1000) { step(); accumulator -= DT * 1000; }
+      previous = now;
       ctx.clearRect(0, 0, width, height);
       while (trail.length && now - trail[0].t > 500) trail.shift();
       ctx.lineCap = "round";
@@ -203,6 +211,7 @@ export default function SparxieRain() {
     frame = requestAnimationFrame(render);
     const point = (e: PointerEvent) => { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
     const down = (e: PointerEvent) => {
+      if (!activeRef.current) return;
       if (e.pointerType === "mouse" && e.button !== 0) return;
       const p = point(e);
       for (let i = bodies.length - 1; i >= 0; i--) {
@@ -247,7 +256,7 @@ export default function SparxieRain() {
       held = undefined;
     };
     const spawn = () => {
-      if (bodies.length + pending >= LIMIT) return;
+      if (!activeRef.current || bodies.length + pending >= LIMIT) return;
       pending++;
       canvas.dataset.count = String(bodies.length + pending);
     };
