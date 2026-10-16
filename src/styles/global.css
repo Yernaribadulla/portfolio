@@ -942,6 +942,7 @@ a:hover {
   pointer-events: none;
   z-index: 6;
 }
+.desktop:not(:has(.os-window)) .desktop-main { touch-action: none; }
 @container desktop (max-width: 760px) {
   .menubar {
     padding: 0 14px;

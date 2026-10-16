@@ -1,110 +1,196 @@
 import { useEffect, useRef } from "react";
 
-const SIZE = 48;
-const LIMIT = 100;
-type Body = { x: number; y: number; vx: number; vy: number };
+const SIZE = 48, HALF = 24, RADIUS = 33, CELL = 72, LIMIT = 500, DT = 1 / 60;
+type Body = { x: number; y: number; vx: number; vy: number; angle: number; spin: number; rest: number; asleep: boolean };
+type Trail = { x: number; y: number; t: number };
 
 export default function SparxieRain() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const image = new Image();
-    image.src = `${import.meta.env.BASE_URL}sparxie.png`;
-    const bodies: Body[] = [];
-    let mask: Uint8Array | null = null;
-    let bottom = SIZE;
-    let width = 0, height = 0, frame = 0, previous = 0, accumulator = 0;
-
+    const canvas = canvasRef.current, layer = canvas?.parentElement, ctx = canvas?.getContext("2d");
+    if (!canvas || !layer || !ctx) return;
+    const image = new Image(); image.src = `${import.meta.env.BASE_URL}sparxie.png`;
+    const bodies: Body[] = [], trail: Trail[] = [];
+    let mask: Uint8Array | undefined, outline: { x: number; y: number }[] = [];
+    let width = 0, height = 0, frame = 0, previous = 0, accumulator = 0, pending = 0, lastSpawn = 0;
+    let held: { body: Body; id: number; dx: number; dy: number; x: number; y: number; t: number } | undefined;
     image.onload = () => {
-      const sample = document.createElement("canvas");
-      sample.width = sample.height = SIZE;
-      const sampleCtx = sample.getContext("2d", { willReadFrequently: true });
-      if (!sampleCtx) return;
-      sampleCtx.drawImage(image, 0, 0, SIZE, SIZE);
-      const rgba = sampleCtx.getImageData(0, 0, SIZE, SIZE).data;
+      const sample = document.createElement("canvas"); sample.width = sample.height = SIZE;
+      const sc = sample.getContext("2d", { willReadFrequently: true }); if (!sc) return;
+      sc.drawImage(image, 0, 0, SIZE, SIZE);
+      const rgba = sc.getImageData(0, 0, SIZE, SIZE).data;
       mask = new Uint8Array(SIZE * SIZE);
-      for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
-        const solid = rgba[(y * SIZE + x) * 4 + 3] > 90;
-        mask[y * SIZE + x] = Number(solid);
-        if (solid) bottom = Math.max(bottom === SIZE ? 0 : bottom, y + 1);
-      }
+      for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) mask[y * SIZE + x] = Number(rgba[(y * SIZE + x) * 4 + 3] > 90);
+      // Rotated ground contacts use the actual transparent silhouette.
+      outline = [];
+      for (let y = 0; y < SIZE; y += 2) for (let x = 0; x < SIZE; x += 2)
+        if (mask[y * SIZE + x] && (x < 2 || y < 2 || x >= SIZE - 2 || y >= SIZE - 2 ||
+          !mask[y * SIZE + x - 1] || !mask[y * SIZE + x + 1] ||
+          !mask[(y - 1) * SIZE + x] || !mask[(y + 1) * SIZE + x]))
+          outline.push({ x: x - HALF, y: y - HALF });
     };
     const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      width = rect.width;
-      height = rect.height;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.round(width * dpr);
-      canvas.height = Math.round(height * dpr);
+      const rect = canvas.getBoundingClientRect(); width = rect.width; height = rect.height;
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
-    const observer = new ResizeObserver(resize);
-    observer.observe(canvas);
-    resize();
+    const observer = new ResizeObserver(resize); observer.observe(canvas); resize();
 
-    // Rectangles only reject distant pairs. Actual contacts require both PNG alpha
-    // masks to have an opaque pixel at the same point.
-    const touching = (a: Body, b: Body) => {
+    const opaque = (body: Body, px: number, py: number) => {
       if (!mask) return false;
-      const left = Math.max(0, Math.ceil(b.x - a.x));
-      const top = Math.max(0, Math.ceil(b.y - a.y));
-      const right = Math.min(SIZE, Math.floor(b.x + SIZE - a.x));
-      const low = Math.min(SIZE, Math.floor(b.y + SIZE - a.y));
-      if (left >= right || top >= low) return false;
-      for (let y = top; y < low; y += 2) for (let x = left; x < right; x += 2) {
-        if (mask[y * SIZE + x] && mask[Math.floor(y + a.y - b.y) * SIZE + Math.floor(x + a.x - b.x)]) return true;
-      }
+      const dx = px - body.x, dy = py - body.y, c = Math.cos(body.angle), s = Math.sin(body.angle);
+      const x = Math.floor(dx * c + dy * s + HALF), y = Math.floor(-dx * s + dy * c + HALF);
+      return x >= 0 && y >= 0 && x < SIZE && y < SIZE && !!mask[y * SIZE + x];
+    };
+    const contact = (a: Body, b: Body) => {
+      const left = Math.ceil(Math.max(a.x - RADIUS, b.x - RADIUS));
+      const right = Math.floor(Math.min(a.x + RADIUS, b.x + RADIUS));
+      const top = Math.ceil(Math.max(a.y - RADIUS, b.y - RADIUS));
+      const bottom = Math.floor(Math.min(a.y + RADIUS, b.y + RADIUS));
+      if (left >= right || top >= bottom) return false;
+      // Broad phase is circular; narrow phase samples rotated PNG alpha on both bodies.
+      for (let y = top; y <= bottom; y += 3) for (let x = left; x <= right; x += 3)
+        if (opaque(a, x, y) && opaque(b, x, y)) return true;
       return false;
     };
+    const floorOffset = (body: Body) => {
+      const c = Math.cos(body.angle), s = Math.sin(body.angle);
+      let low = -Infinity;
+      for (const p of outline) low = Math.max(low, p.x * s + p.y * c);
+      return Number.isFinite(low) ? low : HALF;
+    };
+    const ground = () => height - (width < 700 ? 90 : 96);
+    const wake = (body: Body) => { body.asleep = false; body.rest = 0; };
     const step = () => {
       for (const body of bodies) {
-        body.vy = Math.min(body.vy + 900 / 60, 650);
-        body.x += body.vx / 60;
-        body.y += body.vy / 60;
-        body.vx *= .993;
-        const floor = height - bottom;
-        if (body.y > floor) { body.y = floor; body.vy = Math.abs(body.vy) > 20 ? -body.vy * .35 : 0; body.vx *= .92; }
-        if (body.x < 0 || body.x > width - SIZE) { body.x = Math.max(0, Math.min(width - SIZE, body.x)); body.vx *= -.45; }
+        if (body.asleep || body === held?.body) continue;
+        body.vy = Math.min(body.vy + 850 * DT, 780);
+        body.x += body.vx * DT; body.y += body.vy * DT; body.angle += body.spin * DT;
+        body.vx *= .99; body.spin *= .985;
+        const floor = ground() - floorOffset(body);
+        if (body.y > floor) {
+          body.y = floor; body.vy = Math.abs(body.vy) > 65 ? -body.vy * .25 : 0;
+          body.vx *= .86; body.spin *= .7;
+        }
+        if (body.x < HALF || body.x > width - HALF) {
+          body.x = Math.max(HALF, Math.min(width - HALF, body.x));
+          body.vx *= -.35; body.spin += body.vy * .002;
+        }
       }
-      // A broad distance check keeps the alpha test cheap even with 100 objects.
-      for (let i = 0; i < bodies.length; i++) for (let j = i + 1; j < bodies.length; j++) {
-        const a = bodies[i], b = bodies[j];
-        if (Math.abs(a.x - b.x) >= SIZE || Math.abs(a.y - b.y) >= SIZE || !touching(a, b)) continue;
-        const dx = (b.x - a.x) || (Math.random() - .5) * .1;
-        const dy = (b.y - a.y) || .1;
-        const length = Math.hypot(dx, dy);
-        const nx = dx / length, ny = dy / length;
-        a.x -= nx * 1.4; a.y -= ny * 1.4;
-        b.x += nx * 1.4; b.y += ny * 1.4;
+      // Buckets avoid testing every pair when hundreds of sprites are present.
+      const buckets = new Map<string, number[]>();
+      bodies.forEach((body, index) => {
+        const cx = Math.floor(body.x / CELL), cy = Math.floor(body.y / CELL);
+        const key = `${cx},${cy}`, list = buckets.get(key);
+        if (list) list.push(index); else buckets.set(key, [index]);
+      });
+      const supported = new Set<Body>();
+      for (let ai = 0; ai < bodies.length; ai++) {
+        const base = bodies[ai], cx = Math.floor(base.x / CELL), cy = Math.floor(base.y / CELL);
+        for (let gx = cx - 1; gx <= cx + 1; gx++) for (let gy = cy - 1; gy <= cy + 1; gy++)
+          for (const bi of buckets.get(`${gx},${gy}`) || []) {
+        if (bi <= ai) continue;
+        const a = bodies[ai], b = bodies[bi];
+        if (a.asleep && b.asleep) continue;
+        const dx = b.x - a.x, dy = b.y - a.y;
+        if (Math.abs(dx) > RADIUS * 2 || Math.abs(dy) > RADIUS * 2 || !contact(a, b)) continue;
+        const len = Math.max(1, Math.hypot(dx, dy)), nx = dx / len, ny = dy / len;
+        const af = a.asleep || a === held?.body, bf = b.asleep || b === held?.body;
+        if (Math.abs(ny) > .35) supported.add(ny > 0 ? a : b);
+        if (!af) { a.x -= nx * (bf ? 3 : 1.5); a.y -= ny * (bf ? 3 : 1.5); }
+        if (!bf) { b.x += nx * (af ? 3 : 1.5); b.y += ny * (af ? 3 : 1.5); }
         const closing = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
         if (closing > 0) {
-          const impulse = closing * .42;
-          a.vx -= nx * impulse; a.vy -= ny * impulse;
-          b.vx += nx * impulse; b.vy += ny * impulse;
+          const impulse = closing * .35;
+          if (!af) { a.vx -= nx * impulse; a.vy -= ny * impulse; a.spin -= nx * impulse * .012; }
+          if (!bf) { b.vx += nx * impulse; b.vy += ny * impulse; b.spin += nx * impulse * .012; }
+          if (a.asleep && closing > 90) wake(a);
+          if (b.asleep && closing > 90) wake(b);
         }
+          }
+      }
+      for (const body of bodies) {
+        if (body.asleep || body === held?.body) continue;
+        const supportedNow = body.y >= ground() - floorOffset(body) - 4 || supported.has(body);
+        body.rest = supportedNow && Math.hypot(body.vx, body.vy) < 28 && Math.abs(body.spin) < .35 ? body.rest + 1 : 0;
+        if (body.rest > 30) { body.asleep = true; body.vx = body.vy = body.spin = 0; }
       }
     };
     const render = (now: number) => {
-      accumulator = Math.min(accumulator + Math.min(now - (previous || now), 50), 100);
-      previous = now;
-      while (accumulator >= 1000 / 60) { step(); accumulator -= 1000 / 60; }
+      // Bursts enter in a short stream so hundreds do not start in one overlapping row.
+      if (pending && now - lastSpawn >= 35) {
+        bodies.push({ x: HALF + Math.random() * Math.max(0, width - SIZE), y: -HALF,
+          vx: (Math.random() - .5) * 80, vy: 0, angle: (Math.random() - .5) * .5,
+          spin: (Math.random() - .5) * 2, rest: 0, asleep: false });
+        pending--; lastSpawn = now;
+        canvas.dataset.active = String(bodies.length);
+      }
+      accumulator = Math.min(accumulator + Math.min(now - (previous || now), 50), 100); previous = now;
+      while (accumulator >= DT * 1000) { step(); accumulator -= DT * 1000; }
       ctx.clearRect(0, 0, width, height);
-      if (image.complete && image.naturalWidth) for (const body of bodies) ctx.drawImage(image, body.x, body.y, SIZE, SIZE);
+      while (trail.length && now - trail[0].t > 500) trail.shift();
+      ctx.lineCap = "round";
+      for (let i = 1; i < trail.length; i++) {
+        const fade = Math.max(0, 1 - (now - trail[i].t) / 500);
+        ctx.strokeStyle = `rgba(255,150,190,${fade * .4})`; ctx.lineWidth = 9 * fade;
+        ctx.beginPath(); ctx.moveTo(trail[i - 1].x, trail[i - 1].y); ctx.lineTo(trail[i].x, trail[i].y); ctx.stroke();
+      }
+      if (image.complete && image.naturalWidth) for (const body of bodies) {
+        ctx.save(); ctx.translate(body.x, body.y); ctx.rotate(body.angle);
+        ctx.drawImage(image, -HALF, -HALF, SIZE, SIZE); ctx.restore();
+      }
       frame = requestAnimationFrame(render);
     };
     frame = requestAnimationFrame(render);
-    const spawn = () => {
-      if (bodies.length >= LIMIT) return;
-      bodies.push({ x: Math.random() * Math.max(0, width - SIZE), y: -SIZE, vx: (Math.random() - .5) * 60, vy: 0 });
-      canvas.dataset.count = String(bodies.length);
+    const point = (e: PointerEvent) => { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    const down = (e: PointerEvent) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      const p = point(e);
+      for (let i = bodies.length - 1; i >= 0; i--) {
+        const b = bodies[i]; if (!opaque(b, p.x, p.y)) continue;
+        e.preventDefault(); e.stopPropagation(); wake(b);
+        canvas.dataset.dragging = "true";
+        held = { body: b, id: e.pointerId, dx: b.x - p.x, dy: b.y - p.y, x: p.x, y: p.y, t: performance.now() };
+        b.vx = b.vy = b.spin = 0; trail.length = 0;
+        trail.push({ x: p.x, y: p.y, t: performance.now() }); break;
+      }
     };
+    const move = (e: PointerEvent) => {
+      if (!held || e.pointerId !== held.id) return;
+      e.preventDefault(); const p = point(e), now = performance.now(), ms = Math.max(8, now - held.t);
+      const vx = (p.x - held.x) / ms * 1000, vy = (p.y - held.y) / ms * 1000, b = held.body;
+      b.vx = b.vx * .35 + vx * .65; b.vy = b.vy * .35 + vy * .65;
+      b.spin = Math.max(-15, Math.min(15, b.vx * .014));
+      // A lagged tilt while held makes the sprite swing behind the cursor.
+      b.angle += (Math.max(-.85, Math.min(.85, b.vx * .001)) - Math.sin(b.angle) * .1) * .22;
+      b.x = Math.max(HALF, Math.min(width - HALF, p.x + held.dx));
+      b.y = Math.max(HALF, Math.min(height - HALF, p.y + held.dy));
+      held.x = p.x; held.y = p.y; held.t = now;
+      trail.push({ x: p.x, y: p.y, t: now }); if (trail.length > 20) trail.shift();
+    };
+    const up = (e: PointerEvent) => {
+      if (!held || e.pointerId !== held.id) return;
+      const b = held.body;
+      b.vx = Math.max(-1050, Math.min(1050, b.vx));
+      b.vy = Math.max(-1050, Math.min(1050, b.vy));
+      canvas.dataset.dragging = "false";
+      held = undefined;
+    };
+    const spawn = () => {
+      if (bodies.length + pending >= LIMIT) return;
+      pending++;
+      canvas.dataset.count = String(bodies.length + pending);
+    };
+    layer.addEventListener("pointerdown", down, true);
+    window.addEventListener("pointermove", move, { passive: false });
+    window.addEventListener("pointerup", up); window.addEventListener("pointercancel", up);
     window.addEventListener("summon-sparxie", spawn);
-    return () => { window.removeEventListener("summon-sparxie", spawn); observer.disconnect(); cancelAnimationFrame(frame); image.onload = null; };
+    return () => {
+      layer.removeEventListener("pointerdown", down, true); window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", up);
+      window.removeEventListener("summon-sparxie", spawn); observer.disconnect(); cancelAnimationFrame(frame); image.onload = null;
+    };
   }, []);
-
-  return <canvas ref={canvasRef} className="sparxie-rain" data-count="0" aria-hidden="true" />;
+  return <canvas ref={canvasRef} className="sparxie-rain" data-count="0" data-active="0" data-dragging="false" aria-hidden="true" />;
 }
