@@ -5,14 +5,14 @@ test("Sparxie can be grabbed and thrown by its visible pixels", async ({ page })
     (window as typeof window & { originalRandom?: typeof Math.random }).originalRandom = Math.random;
     Math.random = () => .12;
   });
-  await page.goto("./?lite=1");
+  await page.goto("./?lite=1#studio");
   const canvas = page.locator(".sparxie-rain");
   const summon = page.getByRole("button", { name: "Вызвать объект" });
   await expect(summon).toBeVisible();
   await summon.click();
   await expect(canvas).toHaveAttribute("data-count", "1");
   await page.waitForTimeout(2400);
-  await page.screenshot({ path: "../../work/sparxie-one.png" });
+  await page.screenshot({ path: "test-results/legacy/sparxie-one.png" });
   const pixel = await canvas.evaluate((element) => {
     const c = element as HTMLCanvasElement, { width, height } = c;
     const data = c.getContext("2d")!.getImageData(0, 0, width, height).data;
@@ -38,11 +38,11 @@ test("Sparxie can be grabbed and thrown by its visible pixels", async ({ page })
   await expect(canvas).toHaveAttribute("data-count", "500");
   await expect(canvas).toHaveAttribute("data-active", "500", { timeout: 35_000 });
   await page.waitForTimeout(1200);
-  await page.screenshot({ path: "../../work/sparxie-many.png" });
+  await page.screenshot({ path: "test-results/legacy/sparxie-many.png" });
 });
 
 test("Sparxie lands on the dock only when above it", async ({ page }) => {
-  await page.goto("./?lite=1");
+  await page.goto("./?lite=1#studio");
   const summon = page.getByRole("button", { name: "Вызвать объект" });
   const canvas = page.locator(".sparxie-rain");
   await page.evaluate(() => { Math.random = () => .12; });
@@ -98,7 +98,7 @@ test("Sparxie lands on the dock only when above it", async ({ page }) => {
 });
 
 test("a settled pile stays still", async ({ page }) => {
-  await page.goto("./?lite=1");
+  await page.goto("./?lite=1#studio");
   await page.evaluate(() => { Math.random = () => .5; });
   const canvas = page.locator(".sparxie-rain");
   for (let i = 0; i < 6; i++) await page.getByRole("button", { name: "Вызвать объект" }).click();
@@ -123,7 +123,7 @@ test("Sparxie can be held and thrown with a finger", async ({ browser }) => {
   const page = await context.newPage();
   try {
     await page.addInitScript(() => { Math.random = () => .12; });
-    await page.goto("./");
+    await page.goto("./#studio");
     const outreach = page.locator('.desktop-icon[data-app="outreach"] .app-icon');
     await expect(outreach.locator("svg.outreach-mark")).toBeVisible();
     await expect(outreach).toHaveText("");

@@ -11,13 +11,13 @@ test("cinematic forward / reverse, skip, resize and persistent windows", async (
     if (r.status() >= 400 && r.url().includes("127.0.0.1"))
       failed.push(r.url());
   });
-  await page.goto("./");
+  await page.goto("./#studio");
   await expect(page.locator(".experience-stage")).toHaveAttribute("data-scene-ready","true");
   await expect(page.locator(".scene canvas")).toBeVisible();
   const initial = await page.locator(".desktop-surface").getAttribute("style");
   await page.evaluate(() => scrollTo(0, innerHeight * 2));
   await expect.poll(()=>page.locator(".desktop-surface").getAttribute("style"),{timeout:15000}).not.toEqual(initial);
-  await page.screenshot({ path: "../../work/scene-checked.png" });
+  await page.screenshot({ path: "test-results/legacy/scene-checked.png" });
   await page.evaluate(() => scrollTo(0, 0));
   await page.waitForTimeout(700);
   await expect(page.locator(".experience-stage")).not.toHaveClass(/is-active/);
@@ -43,7 +43,7 @@ test("cinematic forward / reverse, skip, resize and persistent windows", async (
   await expect(page.locator(".desktop-surface")).toHaveAttribute("inert", "");
   await page.waitForTimeout(1100);
   await expect.poll(() => sparxie.evaluate(el => getComputedStyle(el).opacity)).toBe("0");
-  await page.screenshot({ path: "../../work/scene-after-exit.png" });
+  await page.screenshot({ path: "test-results/legacy/scene-after-exit.png" });
   await page.mouse.wheel(0,1000);
   await expect(page.locator(".experience-stage")).toHaveClass(/is-active/);
   await expect.poll(() => sparxie.evaluate(el => getComputedStyle(el).opacity)).toBe("1");
@@ -68,7 +68,7 @@ test("cinematic forward / reverse, skip, resize and persistent windows", async (
 test("window drag, focus, minimize, restore, maximize, keyboard and terminal", async ({
   page,
 }) => {
-  await page.goto("./?lite=1");
+  await page.goto("./?lite=1#studio");
   await page
     .getByRole("button", { name: "Открыть Обо мне", exact: true })
     .click();
@@ -113,12 +113,12 @@ test("window drag, focus, minimize, restore, maximize, keyboard and terminal", a
   await expect(page.locator(".terminal pre")).toContainText(
     "Команда не найдена",
   );
-  await page.screenshot({ path: "../../work/terminal-checked.png" });
+  await page.screenshot({ path: "test-results/legacy/terminal-checked.png" });
 });
 test("mobile and project links", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("./?lite=1");
-  await page.screenshot({ path: "../../work/mobile-checked.png" });
+  await page.goto("./?lite=1#studio");
+  await page.screenshot({ path: "test-results/legacy/mobile-checked.png" });
   for (const name of ["AI-Hunter", "Outreach Agent", "VoxBridge", "Штиль"]) {
     await page
       .getByRole("button", { name: `Открыть ${name}`, exact: true })
@@ -136,7 +136,7 @@ test("mobile and project links", async ({ page }) => {
   await page
     .getByRole("button", { name: "Открыть Обо мне", exact: true })
     .click();
-  await page.screenshot({ path: "../../work/mobile-window.png" });
+  await page.screenshot({ path: "test-results/legacy/mobile-window.png" });
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -145,7 +145,7 @@ test("mobile and project links", async ({ page }) => {
 });
 test("phone opens a readable OS without loading the 3D scene", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("./");
+  await page.goto("./#studio");
   await expect(page.locator(".experience-stage")).toHaveClass(/is-simple/);
   await expect(page.locator(".scene canvas")).toHaveCount(0);
   await page.getByRole("button", { name: "Открыть Штиль", exact: true }).click();
@@ -158,7 +158,7 @@ test("phone opens a readable OS without loading the 3D scene", async ({ page }) 
 });
 test("reduced motion avoids loading WebGL", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("./");
+  await page.goto("./#studio");
   await expect(page.locator(".experience-stage")).toHaveClass(/is-active/);
   await expect(page.locator(".scene canvas")).toHaveCount(0);
   await page
@@ -179,7 +179,7 @@ test("WebGL unavailable still permits projects", async ({ page }) => {
       return original.apply(this, [type, ...args] as never);
     } as typeof original;
   });
-  await page.goto("./");
+  await page.goto("./#studio");
   await expect(page.locator(".experience-stage")).toHaveClass(/is-simple/);
   await page
     .getByRole("button", { name: "Открыть VoxBridge", exact: true })
@@ -190,7 +190,7 @@ test("WebGL unavailable still permits projects", async ({ page }) => {
 });
 test("missing 3D asset falls back to desktop", async ({ page }) => {
   await page.route("**/models/sofa.glb", (r) => r.abort());
-  await page.goto("./");
+  await page.goto("./#studio");
   await expect(page.locator(".experience-stage")).toHaveClass(/is-simple/, {
     timeout: 25000,
   });
@@ -202,7 +202,7 @@ test("missing 3D asset falls back to desktop", async ({ page }) => {
   ).toBeVisible();
 });
 test("direct desktop anchor", async ({ page }) => {
-  await page.goto("./#desktop");
+  await page.goto("./?studio=1#desktop");
   await expect(page.locator(".experience-stage")).toHaveClass(/is-active/);
   await page
     .getByRole("button", { name: "Открыть Контакты", exact: true })

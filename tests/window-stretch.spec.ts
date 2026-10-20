@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 test('maximize and restore interpolate the actual visible window rectangle',async({page})=>{
- await page.goto('./?lite=1');
+ await page.goto('./?lite=1#studio');
  await page.getByRole('button',{name:'Открыть Обо мне',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'Обо мне',exact:true});
  await expect.poll(()=>dialog.evaluate(el=>getComputedStyle(el).transform)).toBe('none');

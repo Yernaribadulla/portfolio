@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 
 test('scroll entry absorbs momentum, keeps windows scrollable and allows deliberate exit',async({page})=>{
-  await page.goto('./');
+  await page.goto('./#studio');
   const stage=page.locator('.experience-stage');
   await expect(stage).toHaveAttribute('data-scene-ready','true');
   await page.evaluate(()=>scrollTo(0,innerHeight*4.5*.87));
@@ -28,7 +28,7 @@ test('scroll entry absorbs momentum, keeps windows scrollable and allows deliber
 });
 
 test('icons stay in one column and entry fade is visible with an explicit terminal prompt',async({page})=>{
-  await page.goto('./?lite=1');
+  await page.goto('./?lite=1#studio');
   for(const height of [900,715]){
     await page.setViewportSize({width:1100,height});
     const about=await page.getByRole('button',{name:'Открыть Обо мне',exact:true}).boundingBox();
@@ -43,5 +43,5 @@ test('icons stay in one column and entry fade is visible with an explicit termin
   await expect.poll(()=>terminal.evaluate(el=>Number(getComputedStyle(el).opacity))).toBe(1);
   await expect(page.getByPlaceholder('Например: help или open ai-hunter')).toBeVisible();
   await expect(page.getByRole('button',{name:'Выполнить команду'})).toBeVisible();
-  await page.screenshot({path:'../../work/terminal-final.png'});
+  await page.screenshot({path:'test-results/legacy/terminal-final.png'});
 });

@@ -1,5 +1,22 @@
 # Yernar Ibadulla
 
+## YERNAR OS / ORBITAL EDITION
+
+The portfolio and **EVENT HORIZON** now share one React application and one live black-hole scene. Open projects on the orbital desktop, enter the observatory, explore five chapters, then return to your existing project windows. The original laptop studio remains available through **Войти в студию**.
+
+```sh
+npm ci
+npm run dev -- --port 5180
+```
+
+Open `http://127.0.0.1:5180/portfolio/`. Production: `npm run build`; GitHub Pages bundle: `npm run build:pages` (writes `docs/`, matching this repository's hosting configuration). Physics checks: `npm run test:physics`. Browser regression suite: `npm test`.
+
+Routes: `#desktop`, `#observatory/1` through `#observatory/5`, `#studio`, `#studio/desktop`. Terminal command: `open event-horizon`.
+
+[Integration notes and verification](ORBITAL.md) · [Horizon licenses](HORIZON_NOTICES.md) · [Original portfolio assets](ASSETS.md)
+
+---
+
 **AI Integration & Python Backend Engineer · Astana, Kazakhstan**
 
 I build Python applications that connect local language models to APIs, business data and desktop workflows. My projects cover job search, company research and speech translation, with structured validation and review controls around external actions.

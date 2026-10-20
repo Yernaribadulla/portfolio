@@ -16,6 +16,7 @@ import {
   Folder,
   Command,
   Wifi,
+  Orbit,
 } from "lucide-react";
 import {
   apps,
@@ -221,9 +222,13 @@ function Contact() {
 export default function Desktop({
   active,
   onReplay,
+  onObservatory,
+  orbital = false,
 }: {
   active: boolean;
   onReplay: () => void;
+  onObservatory: () => void;
+  orbital?: boolean;
 }) {
   const [windows, setWindows] = useState<WindowState[]>([]);
   const [time, setTime] = useState(localTime);
@@ -236,6 +241,7 @@ export default function Desktop({
     top: number;
   } | null>(null);
   const open = (id: AppId) => {
+    if (id === 'event-horizon') { onObservatory(); return; }
     setWindows((w) => {
       const exists = w.find((a) => a.id === id);
       return [
@@ -371,7 +377,7 @@ export default function Desktop({
     }
   };
   return (
-    <div className="desktop" ref={desktop}>
+    <div className={`desktop ${orbital ? 'orbital-desktop' : ''}`} ref={desktop}>
       <div className="wallpaper">
         <div className="orb orb-a" />
         <div className="orb orb-b" />
@@ -379,10 +385,11 @@ export default function Desktop({
       </div>
       <header className="menubar">
         <b>
-          <Command size={15} />
+          {orbital ? <Orbit size={22} /> : <Command size={15} />}
           YERNAR <span>OS</span>
         </b>
-        <span className="menu-label">Персональное рабочее пространство</span>
+        <span className="menu-label">{orbital ? 'ORBITAL EDITION / 001' : 'Персональное рабочее пространство'}</span>
+        {orbital && <nav className="mode-switch" aria-label="Режим сайта"><span aria-current="page">Портфолио</span><button onClick={onObservatory}>Обсерватория <ArrowUpRight size={12}/></button></nav>}
         <div className="menu-right">
           <span className="status">
             <i />
@@ -399,7 +406,7 @@ export default function Desktop({
       </header>
       <main
         className="desktop-main"
-        id="desktop"
+        id={orbital ? "orbital-desktop" : "desktop"}
         tabIndex={-1}
         aria-label="Рабочий стол YERNAR OS"
       >
@@ -418,29 +425,28 @@ export default function Desktop({
           ))}
         </div>
         <div className="desktop-greeting">
-          <span className="eyebrow">ИНЖЕНЕРИЯ С ЧЕЛОВЕЧЕСКИМ ЛИЦОМ</span>
+          <span className="eyebrow">{orbital ? 'ЕРНАР ИБАДУЛЛА / PYTHON & AI ENGINEER' : 'ИНЖЕНЕРИЯ С ЧЕЛОВЕЧЕСКИМ ЛИЦОМ'}</span>
           <h1>
-            Хорошие идеи.
-            <br />
-            Рабочий <em>код.</em>
+            {orbital ? <>IDEAS<br/><em>IN ORBIT.</em><sup>01—05</sup></> : <>Хорошие идеи.<br/>Рабочий <em>код.</em></>}
           </h1>
           <p>
-            Ернар Ибадулла
+            {orbital ? 'От первой мысли — к работающей системе.' : 'Ернар Ибадулла'}
             <br />
-            <span>Python Backend & AI Integration Engineer</span>
+            <span>{orbital ? 'Локальные модели. Данные. Интерфейсы для людей.' : 'Python Backend & AI Integration Engineer'}</span>
           </p>
-          <button onClick={() => open("about")}>
-            Рад знакомству <ArrowUpRight size={18} />
-          </button>
+          <div className="greeting-actions"><button className="meet-button" onClick={() => open("about")}>
+            {orbital ? 'Обо мне и моей работе' : 'Рад знакомству'} <ArrowUpRight size={18} />
+          </button>{orbital && <button className="enter-observatory" onClick={onObservatory}><Orbit size={16}/> Войти в обсерваторию <ArrowUpRight size={16}/></button>}</div>
           <button onClick={() => window.dispatchEvent(new Event("summon-sparxie"))}>
             Вызвать объект <ArrowUpRight size={18} />
           </button>
         </div>
         <SparxieRain active={active} />
+        {orbital && <button className="orbital-beacon" onClick={onObservatory}><span className="beacon-cross">+</span><span><b>EVENT HORIZON</b><small>LIVE EXPERIMENT / EXPLORE ↗</small></span></button>}
         <div className="desktop-hint">
           <Folder size={16} />
           <span>
-            Каждая иконка — часть моей работы.
+            {orbital ? 'SELECTED WORK / 04 PROJECTS' : 'Каждая иконка — часть моей работы.'}
             <br />
             Откройте любую, чтобы начать.
           </span>
@@ -523,7 +529,7 @@ export default function Desktop({
       </main>
       <button className="replay" onClick={onReplay}>
         <ArrowLeft size={14} />
-        Интро
+        {orbital ? 'Войти в студию' : 'Интро'}
       </button>
       <nav className="dock" aria-label="Панель приложений">
         {apps.map((app) => (
@@ -551,7 +557,7 @@ export default function Desktop({
           <Github size={25} />
         </a>
       </nav>
-      <span className="desktop-version">Y / OS — 2026</span>
+      <span className="desktop-version">{orbital ? 'ASTANA, KZ / 51°10′ N 71°26′ E' : 'Y / OS — 2026'}</span>
     </div>
   );
 }
