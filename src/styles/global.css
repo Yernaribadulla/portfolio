@@ -1,6 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap");
-:root {
-  font-family: "Golos Text", sans-serif;
+@scope (.legacy-ui) {
+:scope {
+  font-family: "Golos Text Variable", sans-serif;
   color: #f0f1f3;
   background: #080b10;
   font-synthesis: none;
@@ -176,7 +176,7 @@ a:hover {
   border-radius: 50%;
 }
 .intro-copy h1 {
-  font-family: Manrope, sans-serif;
+  font-family: 'Manrope Variable', sans-serif;
   font-size: clamp(28px, 3.45vw, 60px);
   font-weight: 400;
   letter-spacing: -2px;
@@ -424,7 +424,7 @@ a:hover {
 }
 .desktop-greeting h1 {
   font:
-    500 clamp(40px, 5.7cqw, 100px)/1.1 Manrope,
+    500 clamp(40px, 5.7cqw, 100px)/1.1 'Manrope Variable',
     sans-serif;
   letter-spacing: -4px;
   margin: 24px 0 30px;
@@ -645,7 +645,7 @@ a:hover {
   color: #343e36;
   display: grid;
   place-items: center;
-  font: 500 48px Manrope;
+  font: 500 48px 'Manrope Variable';
   letter-spacing: -5px;
   box-shadow: inset -15px -10px 35px #9fae9355;
 }
@@ -656,7 +656,7 @@ a:hover {
   font-size: 18px;
 }
 .about-content h2 {
-  font: 500 35px/1.05 Manrope;
+  font: 500 35px/1.05 'Manrope Variable';
   margin: 0;
   letter-spacing: -1.3px;
 }
@@ -670,7 +670,7 @@ a:hover {
   margin: 12px 0 0;
 }
 .about-lead {
-  font: 400 23px/1.4 Manrope !important;
+  font: 400 23px/1.4 'Manrope Variable' !important;
   color: #e4e9ec !important;
   letter-spacing: -0.5px;
   margin: 30px 0 16px;
@@ -715,7 +715,7 @@ a:hover {
   margin-top: 22px;
 }
 .project-content h2 {
-  font: 500 45px Manrope;
+  font: 500 45px 'Manrope Variable';
   margin: 18px 0 12px;
   letter-spacing: -2px;
 }
@@ -783,7 +783,7 @@ a:hover {
   font-size: 11px;
 }
 .contact-content h2 {
-  font: 400 48px/1.1 Manrope;
+  font: 400 48px/1.1 'Manrope Variable';
   letter-spacing: -2px;
   margin: 35px 0;
 }
@@ -1087,7 +1087,7 @@ a:hover {
   -webkit-font-smoothing: antialiased;
 }
 .avatar {
-  font-family: Manrope, sans-serif;
+  font-family: 'Manrope Variable', sans-serif;
   font-weight: 700;
   letter-spacing: -2px;
   font-size: 37px;
@@ -1096,7 +1096,7 @@ a:hover {
   border-radius: 18px;
 }
 .cream.app-icon {
-  font-family: Manrope, sans-serif;
+  font-family: 'Manrope Variable', sans-serif;
   font-weight: 700;
   font-size: 21px;
   letter-spacing: -1px;
@@ -1172,13 +1172,13 @@ a:hover {
 }
 
 /* Stable icon slots: never wrap a seventh icon into a second column during screen entry. */
-.desktop-icons{display:grid;grid-template-columns:100px;grid-template-rows:repeat(7,minmax(0,1fr));height:min(720px,calc(100cqh - 150px));gap:6px;align-content:stretch}
+.desktop-icons{display:grid;grid-template-columns:100px;grid-template-rows:repeat(8,minmax(0,1fr));height:min(720px,calc(100cqh - 150px));gap:6px;align-content:stretch}
 .desktop-icon{min-height:0;padding:4px 0;gap:6px;justify-content:center;font-size:12px}
 .desktop-icon .app-icon{flex-shrink:0;width:clamp(33px,5.6cqh,49px);height:clamp(33px,5.6cqh,49px)}
 .desktop-hint{font-size:12px;color:#b4c6d2;line-height:1.7}
 .window-footer{font-size:11px;color:#b1c0ce;height:32px;letter-spacing:.2px}
 .note{font-size:12px;color:#a5b7c5}.terminal small{color:#a5b7c5;font-size:11px}
-.terminal-input-hint{font:500 13px 'Golos Text',sans-serif;color:#dcebcf;margin:25px 0 10px}
+.terminal-input-hint{font:500 13px 'Golos Text Variable',sans-serif;color:#dcebcf;margin:25px 0 10px}
 .terminal-command-form{display:flex;align-items:center;border:1px solid #a6cf8270;background:#c7e5a80b;padding:13px 12px;border-radius:8px;box-shadow:inset 0 0 16px #a6d17a05}
 .terminal-command-form:focus-within{border-color:#c8e5a5;box-shadow:0 0 0 3px #b3d68e12}
 .terminal-command-form input{min-width:0;font-size:13px;outline:none!important}.terminal-command-form input::placeholder{color:#94a58b;opacity:1}.terminal-command-form label{font-size:20px;color:#c9e6a9}
@@ -1231,3 +1231,5 @@ body:has(.experience-stage.is-active){overflow:hidden;overscroll-behavior:none}.
   .window-body { padding-bottom: env(safe-area-inset-bottom); }
 }
 footer.page-footer{display:none}
+
+}

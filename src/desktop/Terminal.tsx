@@ -164,7 +164,7 @@ export default function Terminal({ open }: { open: (id: AppId) => void }) {
         <button type="submit" aria-label="Выполнить команду">Enter ↵</button>
       </form>
       <div className="terminal-shortcuts">
-        {["help", "projects", "open ai-hunter", "skills", "contact"].map(
+        {["help", "projects", "open event-horizon", "skills", "contact"].map(
           (c) => (
             <button
               key={c}

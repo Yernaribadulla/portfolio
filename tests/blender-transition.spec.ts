@@ -2,10 +2,10 @@ import {test,expect} from '@playwright/test';
 test('scene never leaves the viewport during overshoot and reverse, Blender asset loads',async({page})=>{
  const assets:string[]=[];
  page.on('response',r=>{if(r.url().endsWith('/models/laptop.glb')&&r.ok())assets.push(r.url());});
- await page.goto('./');
+ await page.goto('./#studio');
  const stage=page.locator('.experience-stage');
  await expect(stage).toHaveAttribute('data-scene-ready','true');
- await page.screenshot({path:'../../work/liquid-blob-final.png'});
+ await page.screenshot({path:'test-results/legacy/liquid-blob-final.png'});
  await page.evaluate(()=>{
   (window as any).stageSamples=[];
   let frames=0;
@@ -23,10 +23,10 @@ test('scene never leaves the viewport during overshoot and reverse, Blender asse
  expect(samples.length).toBeGreaterThan(3);
  expect(samples.every(([top,height,viewport])=>Math.abs(top)<1&&Math.abs(height-viewport)<1)).toBe(true);
  expect(assets).toHaveLength(1);
- await page.screenshot({path:'../../work/blender-return.png'});
+ await page.screenshot({path:'test-results/legacy/blender-return.png'});
 });
 test('window can move all the way to the menubar',async({page})=>{
- await page.goto('./?lite=1');
+ await page.goto('./?lite=1#studio');
  await page.getByRole('button',{name:'Открыть Обо мне',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'Обо мне',exact:true});
  await expect.poll(()=>dialog.evaluate(el=>getComputedStyle(el).transform)).toBe('none');
@@ -34,5 +34,5 @@ test('window can move all the way to the menubar',async({page})=>{
  await page.mouse.move(title!.x+170,title!.y+20);await page.mouse.down();await page.mouse.move(title!.x+170,0,{steps:12});await page.mouse.up();
  const bar=await page.locator('.menubar').boundingBox();
  await expect.poll(async()=>(await dialog.boundingBox())!.y).toBeCloseTo(bar!.height,0);
- await page.screenshot({path:'../../work/window-top-fixed.png'});
+ await page.screenshot({path:'test-results/legacy/window-top-fixed.png'});
 });

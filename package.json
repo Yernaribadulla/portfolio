@@ -9,24 +9,30 @@
     "build:pages": "tsc -b && vite build --outDir docs",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "playwright test"
+    "test": "playwright test",
+    "test:physics": "node --test tests/physics/*.test.mjs",
+    "test:integration": "playwright test tests/orbital.spec.ts"
   },
   "dependencies": {
+    "@fontsource-variable/golos-text": "^5.3.0",
+    "@fontsource-variable/manrope": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@react-three/drei": "^10.7.6",
+    "@react-three/fiber": "^9.8.2",
+    "gsap": "^3.13.0",
+    "lucide-react": "^0.468.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "three": "^0.180.0",
-    "@react-three/fiber": "^9.8.2",
-    "@react-three/drei": "^10.7.6",
-    "gsap": "^3.13.0",
-    "lucide-react": "^0.468.0"
+    "three": "^0.182.0",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
-    "typescript": "~5.9.3",
-    "vite": "^8.3.4",
-    "@vitejs/plugin-react": "^6.0.0",
+    "@playwright/test": "^1.56.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
-    "@types/three": "^0.180.0",
-    "@playwright/test": "^1.56.0"
+    "@types/three": "^0.182.0",
+    "@vitejs/plugin-react": "^6.0.0",
+    "typescript": "~5.9.3",
+    "vite": "^8.3.4"
   }
 }

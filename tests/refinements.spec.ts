@@ -5,7 +5,7 @@ test("contact controls work without a desktop email handler", async ({
 }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.setViewportSize({ width: 722, height: 715 });
-  await page.goto("./?lite=1");
+  await page.goto("./?lite=1#studio");
   await page
     .getByRole("button", { name: "Написать письмо", exact: true })
     .click();
@@ -29,12 +29,12 @@ test("contact controls work without a desktop email handler", async ({
   await page.getByRole("button", { name: "Открыть Контакты", exact: true }).click();
   await expect(contact).toBeVisible();
   expect(await page.evaluate(() => scrollY)).toBe(0);
-  await page.screenshot({ path: "../../work/contact-updated.png" });
+  await page.screenshot({ path: "test-results/legacy/contact-updated.png" });
 });
 test("terminal history, completion, commands and application launching", async ({
   page,
 }) => {
-  await page.goto("./?lite=1");
+  await page.goto("./?lite=1#studio");
   await page
     .getByRole("button", { name: "Открыть Терминал", exact: true })
     .click();
@@ -69,7 +69,7 @@ test("terminal history, completion, commands and application launching", async (
   await expect(page.locator(".terminal pre")).toHaveText("");
   await page.getByRole("button", { name: "help", exact: true }).click();
   await expect(page.locator(".terminal pre")).toContainText("open <имя>");
-  await page.screenshot({ path: "../../work/terminal-updated.png" });
+  await page.screenshot({ path: "test-results/legacy/terminal-updated.png" });
 });
 test("clock follows the device timezone from the first rendered frame", async ({
   browser,
@@ -81,7 +81,7 @@ test("clock follows the device timezone from the first rendered frame", async ({
     const context = await browser.newContext({ timezoneId, locale: "en-GB" });
     const page = await context.newPage();
     await page.clock.install({ time: new Date("2026-10-16T12:00:00Z") });
-    await page.goto("http://127.0.0.1:5173/portfolio/?lite=1");
+    await page.goto("http://127.0.0.1:5180/portfolio/?lite=1#studio");
     await expect(page.getByLabel("Местное время устройства")).toHaveText(time);
     await expect(page.locator("time")).toHaveAttribute("title", timezoneId);
     await context.close();
@@ -91,7 +91,7 @@ test("native laptop display aspect stays independent of browser aspect", async (
   page,
 }) => {
   await page.setViewportSize({ width: 722, height: 715 });
-  await page.goto("./");
+  await page.goto("./#studio");
   await expect(page.locator(".experience-stage")).toHaveAttribute("data-scene-ready","true");
   await page.evaluate(() => scrollTo(0, innerHeight * 4.5 * 0.7));
   await expect
@@ -105,7 +105,7 @@ test("native laptop display aspect stays independent of browser aspect", async (
     .locator(".desktop-surface")
     .evaluate((el) => parseFloat(el.style.width) / parseFloat(el.style.height));
   expect(aspect).toBeCloseTo(0.454 / 0.284, 2);
-  await page.screenshot({ path: "../../work/laptop-aspect-fixed.png" });
+  await page.screenshot({ path: "test-results/legacy/laptop-aspect-fixed.png" });
   await page.getByRole("button", { name: "Пропустить интро" }).click();
   await expect(page.locator(".experience-stage")).toHaveClass(/is-active/);
   await expect
@@ -115,5 +115,5 @@ test("native laptop display aspect stays independent of browser aspect", async (
         .evaluate((el) => parseFloat(el.style.width)),
     )
     .toBeCloseTo(722, 0);
-  await page.screenshot({ path: "../../work/desktop-722-fixed.png" });
+  await page.screenshot({ path: "test-results/legacy/desktop-722-fixed.png" });
 });
