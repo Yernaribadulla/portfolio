@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "tsc -b && vite build",
-    "build:pages": "tsc -b && vite build --outDir docs",
+    "build": "node scripts/catalog-build.mjs && tsc -b && vite build",
+    "build:pages": "node scripts/catalog-build.mjs && tsc -b && vite build --outDir docs",
+    "catalog:build": "node scripts/catalog-build.mjs",
+    "test:products": "playwright test tests/products.spec.ts",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview --host 127.0.0.1",
     "test": "playwright test",

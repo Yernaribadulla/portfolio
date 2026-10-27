@@ -29,6 +29,8 @@ import {
 import WindowFrame from "./WindowFrame";
 import Terminal from "./Terminal";
 import SparxieRain from "./SparxieRain";
+import DigitalProducts from "./DigitalProducts";
+import { productRoute } from "../data/products";
 const localTime = () =>
   new Intl.DateTimeFormat(undefined, {
     hour: "2-digit",
@@ -231,6 +233,7 @@ export default function Desktop({
   orbital?: boolean;
 }) {
   const [windows, setWindows] = useState<WindowState[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [time, setTime] = useState(localTime);
   const desktop = useRef<HTMLDivElement>(null);
   const drag = useRef<{
@@ -240,8 +243,7 @@ export default function Desktop({
     left: number;
     top: number;
   } | null>(null);
-  const open = (id: AppId) => {
-    if (id === 'event-horizon') { onObservatory(); return; }
+  const raiseWindow = (id: AppId) => {
     setWindows((w) => {
       const exists = w.find((a) => a.id === id);
       return [
@@ -261,10 +263,40 @@ export default function Desktop({
       ];
     });
   };
-  const close = (id: AppId) =>
+  const open = (id: AppId) => {
+    if (id === 'event-horizon') { onObservatory(); return; }
+    if (id === 'products') {
+      if (orbital && productRoute()) raiseWindow(id);
+      else location.hash = 'products';
+      return;
+    }
+    raiseWindow(id);
+  };
+  useEffect(() => {
+    if (!orbital) return;
+    const syncProducts = () => {
+      const route = productRoute();
+      if (route) {
+        setSelectedProduct(route.id);
+        raiseWindow('products');
+      } else if (!location.hash || location.hash === '#desktop') {
+        setWindows(current => current.filter(item => item.id !== 'products'));
+      }
+    };
+    syncProducts();
+    window.addEventListener('hashchange', syncProducts);
+    window.addEventListener('popstate', syncProducts);
+    return () => {
+      window.removeEventListener('hashchange', syncProducts);
+      window.removeEventListener('popstate', syncProducts);
+    };
+  }, [orbital]);
+  const close = (id: AppId) => {
+    if (id === 'products' && productRoute()) { location.hash = 'desktop'; return; }
     setWindows((w) =>
       w.map((a) => (a.id === id ? { ...a, exit: "close" } : a)),
     );
+  };
   const finishExit = (id: AppId) => {
     setWindows((w) =>
       w.flatMap((a) =>
@@ -509,7 +541,9 @@ export default function Desktop({
                   </div>
                 </div>
                 <div className="window-body">
-                  {w.id === "about" ? (
+                  {w.id === "products" ? (
+                    <DigitalProducts selectedId={selectedProduct} />
+                  ) : w.id === "about" ? (
                     <About open={open} />
                   ) : w.id === "contact" ? (
                     <Contact />

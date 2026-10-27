@@ -1,0 +1,39 @@
+.products-content { padding:32px; color:#e5e5dd; overflow-wrap:anywhere; }
+.products-content h2 { font:400 clamp(27px,4vw,38px)/1.15 'Manrope Variable',sans-serif; letter-spacing:-.035em; margin:16px 0; }
+.products-content h2:focus { outline:none; }
+.products-content .products-lead { font-size:14px; line-height:1.8; color:#aebbb6; margin:0 0 25px; }
+.product-grid { display:grid; gap:20px; }
+.product-card { display:block; border:1px solid #aa9b8144; border-radius:6px; overflow:hidden; background:#d8c8b006; transition:border-color .2s; }
+.product-card:hover { border-color:#d6b389; }
+.product-card>.product-visual { max-height:180px; object-fit:contain; }
+.product-visual { width:100%; height:auto; display:block; aspect-ratio:2/1; object-fit:cover; background:#222c2e; }
+.product-card-body { padding:21px; }
+.product-card-meta { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; font-size:10px; color:#aebbb6; }
+.product-status { border:1px solid #cfad7a59; color:#e2bd8e; border-radius:3px; padding:5px 8px; white-space:nowrap; }
+.product-status[data-status=available] { color:#bad4b2; border-color:#bad4b255; }
+.product-card h3 { display:flex; justify-content:space-between; align-items:center; font:500 25px 'Manrope Variable',sans-serif; margin:16px 0 10px; }
+.product-card p,.product-description { font-size:13px; line-height:1.9; color:#b8c2bd; }
+.product-card-price { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-top:23px; color:#e5c9a7; font-size:12px; }
+.product-card-price small { color:#9daea6; font-size:10px; }
+.products-back { display:inline-flex; gap:8px; align-items:center; font-size:12px; color:#c9b293; margin-bottom:28px; }
+.product-detail>.product-visual { border:1px solid #b8a78444; border-radius:4px; }
+.product-purchase { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:16px 0; border-block:1px solid #b8a78433; margin:20px 0; }
+.product-purchase>div { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.product-purchase strong { font:500 28px 'Manrope Variable',sans-serif; color:#e9cfaf; }
+.product-purchase>div>span { color:#a7b4ad; font-size:11px; }
+.product-pending { display:flex; gap:8px; align-items:center; color:#bdc4bb; font-size:12px; }
+.product-external-links { display:flex; gap:23px; flex-wrap:wrap; padding:22px 0 8px; }
+.product-external-links>a { display:inline-flex; align-items:center; gap:7px; font-size:12px; color:#e5c9a7; text-decoration:underline; text-underline-offset:4px; }
+.product-facts { margin-top:28px; }
+.product-facts h3 { font-size:15px; font-weight:500; }
+.product-facts ul { padding-left:19px; color:#b8c2bd; font-size:12px; line-height:1.9; }
+.product-facts li+li { margin-top:6px; }
+.product-version { border-top:1px solid #b8a78433; padding-top:18px; margin-top:28px; color:#99aaa0; font:10px 'IBM Plex Mono',monospace; }
+/* The extra application keeps every dock entry reachable on narrow screens. */
+@media(max-width:720px) {
+  .products-content { padding:22px 18px; }
+  .product-card-body { padding:17px; }
+  .orbital-desktop .dock { gap:clamp(3px,1.7vw,9px); padding-inline:8px; }
+  .orbital-desktop .dock .app-icon { width:clamp(24px,7vw,29px); height:clamp(24px,7vw,29px); }
+  .orbital-desktop .desktop-icons { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}

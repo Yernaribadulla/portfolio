@@ -9,6 +9,7 @@ const Horizon = lazy(() => import('./horizon/HorizonExperience'));
 const Studio = lazy(() => import('./Studio'));
 type View = 'portfolio' | 'observatory' | 'studio';
 function route(): View {
+  if (/^#products(?:\/|$)/.test(location.hash)) return 'portfolio';
   if (location.hash.startsWith('#observatory')) return 'observatory';
   if (location.hash.startsWith('#studio')) return 'studio';
   if (new URLSearchParams(location.search).has('studio')) return 'studio';
