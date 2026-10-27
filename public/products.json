@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "products": [
+    {
+      "id": "dentara",
+      "name": "DENTARA",
+      "category": "web_template",
+      "summary": "Editorial HTML template for dental website projects.",
+      "description": "A self-contained HTML, CSS and JavaScript starting point for developers and small studios building a dental practice website. The commercial edition includes configurable branding, original geometric SVG artwork and English setup documentation.",
+      "price": { "amount": 19, "currency": "USD" },
+      "status": "in_review",
+      "demo_url": "https://dentara-template-yernar.earlycow20.chatgpt.site/",
+      "product_url": "https://dentara-template-yernar.earlycow20.chatgpt.site/template/",
+      "purchase_url": null,
+      "image_url": "products/dentara-preview.png",
+      "features": ["Responsive layout with light and dark themes", "Configurable branding and optional HTTPS booking link", "Local SVG artwork and system fonts", "English documentation and a self-contained source archive"],
+      "requirements": ["Basic HTML, CSS and JavaScript knowledge", "Static hosting or a local HTTP server", "An external booking service if live appointments are needed"],
+      "limitations": ["Codester review is pending. Purchase is not available yet.", "Planned base price: $19; marketplace buyer fees may be added.", "The default form is a local preview: it sends no requests and makes no appointments.", "No CMS, backend, payment processing or hosting is included.", "Chromium and Edge checks completed; Safari, Firefox and physical phones are not yet verified."],
+      "version": "1.0.0",
+      "updated_at": "2026-10-27"
+    }
+  ]
+}

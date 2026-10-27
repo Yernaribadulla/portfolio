@@ -1,5 +1,6 @@
 export type AppId =
   | "about"
+  | "products"
   | "event-horizon"
   | "ai-hunter"
   | "outreach"
@@ -121,6 +122,7 @@ export const apps: { id: AppId; title: string; mark: string; color: string }[] =
     { id: "outreach", title: "Outreach Agent", mark: "", color: "blue" },
     { id: "voxbridge", title: "VoxBridge", mark: "≋", color: "purple" },
     { id: "shtil", title: "Штиль", mark: "≈", color: "teal" },
+    { id: "products", title: "Digital Products", mark: "◇", color: "cream" },
     { id: "terminal", title: "Терминал", mark: ">_", color: "dark" },
     { id: "contact", title: "Контакты", mark: "@", color: "orange" },
   ];

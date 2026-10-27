@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "template_only": true,
+  "product_id": null,
+  "budget_limit": {"amount": "0.00", "currency": "USD"},
+  "maximum_active_experiments": 1,
+  "stages": [
+    {"name": "research", "status": "pending", "required_evidence": ["specific buyer problem", "existing alternatives and current primary sources", "reachable audience"]},
+    {"name": "specification", "status": "pending", "required_evidence": ["buyer", "bounded feature scope", "acceptance checks", "license and support scope"]},
+    {"name": "development", "status": "pending", "required_evidence": ["reviewable source change"]},
+    {"name": "test", "status": "pending", "required_evidence": ["actual command outputs", "unresolved limitations"]},
+    {"name": "documentation", "status": "pending", "required_evidence": ["installation", "customization", "limitations", "asset licenses"]},
+    {"name": "demo", "status": "pending", "required_evidence": ["actual preview URL", "manual desktop and mobile verification"]},
+    {"name": "package", "status": "pending", "required_evidence": ["explicit reviewed allowlist", "deterministic ZIP SHA256", "payload manifest"]},
+    {"name": "publication_approval", "status": "pending", "required_evidence": ["owner authorization", "rights confirmation", "reviewed listing and price", "actual marketplace approval and purchase URL"]},
+    {"name": "analytics", "status": "pending", "required_evidence": ["observed baseline or null", "measurement source", "observation time and reporting window"]},
+    {"name": "experiment", "status": "pending", "required_evidence": ["one variable", "fixed end date", "no invented conversion attribution", "stop and evaluate"]}
+  ],
+  "experiment": {
+    "hypothesis": null,
+    "single_variable": null,
+    "start_at": null,
+    "end_at": null,
+    "primary_metric": null,
+    "measurement_source": null,
+    "baseline": null,
+    "result": null,
+    "qualified_visitors": null,
+    "sales": null,
+    "decision": "Do not infer product rejection from unknown or negligible reach. No automatic price or channel change."
+  }
+}

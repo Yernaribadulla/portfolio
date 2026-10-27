@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "product_id": "replace-product-id",
+  "account": "PLACEHOLDER: replace privately with actual account label",
+  "currency": "USD",
+  "period": {
+    "start": "2020-01-01T00:00:00Z",
+    "end": "2020-01-31T23:59:59Z"
+  },
+  "events": [],
+  "coverage": {},
+  "observations": []
+}

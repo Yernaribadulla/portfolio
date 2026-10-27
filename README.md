@@ -11,7 +11,17 @@ npm run dev -- --port 5180
 
 Open `http://127.0.0.1:5180/portfolio/`. Production: `npm run build`; GitHub Pages bundle: `npm run build:pages` (writes `docs/`, matching this repository's hosting configuration). Physics checks: `npm run test:physics`. Browser regression suite: `npm test`.
 
-Routes: `#desktop`, `#observatory/1` through `#observatory/5`, `#studio`, `#studio/desktop`. Terminal command: `open event-horizon`.
+Routes: `#desktop`, `#observatory/1` through `#observatory/5`, `#studio`, `#studio/desktop`, `#products`, `#products/dentara`. Terminal commands: `open event-horizon`, `open products`.
+
+## Digital Products
+
+The Digital Products app uses the existing YERNAR OS window system and preserves the shared EVENT HORIZON renderer. DENTARA is listed at a planned **$19 USD base price**, **In review**; no purchase link is shown until a real marketplace listing is available.
+
+`public/products.json` is the single machine-readable catalog. The React app and the generated, JavaScript-independent `public/products/index.html` both use it. Add a validated entry, rebuild, and review the branch: no component changes are needed for a new product. Draft entries are hidden from the rendered storefront, but this is a **public repository**: never put confidential product or financial data in the catalog.
+
+Builds now require **Python 3.11+** as well as Node. If Python is not on PATH, set `PYTHON` to its executable path. Both build commands validate the catalog and regenerate the static page automatically; `build:pages` also refreshes the tracked `docs/` deployment bundle. Changes reach the live portfolio only after review and merge into its publishing branch. CI validates and tests but does not publish or merge.
+
+See [factory operations](factory/README.md) for packaging, private evidence-based financial reports, and local catalog updates. Run `npm run test:products` for storefront regression tests, `npm test` for all browser checks, and `python -m unittest discover -s factory/tests -v` for the offline pipeline. Real financial ledgers stay **outside this repository**; the provided fixtures are synthetic. No analytics collector or paid service is added: site visits and outbound clicks remain unknown until a real data source is configured.
 
 [Integration notes and verification](ORBITAL.md) · [Horizon licenses](HORIZON_NOTICES.md) · [Original portfolio assets](ASSETS.md)
 
@@ -109,6 +119,8 @@ I built an editorial dental website with responsive layouts, light and dark them
 [Live concept](https://yernaribadulla.github.io/Dentist_eng_commercial/) · [Source & checks](https://github.com/Yernaribadulla/Dentist_eng_commercial)
 
 The clinic content is illustrative. The form previews a request without sending it or booking an appointment.
+
+The separate commercial template edition includes original SVG artwork, configurable branding and English setup documentation. Its planned base price is $19; Codester moderation is pending. [Commercial live demo](https://dentara-template-yernar.earlycow20.chatgpt.site/) · [Product details](https://dentara-template-yernar.earlycow20.chatgpt.site/template/). The portfolio's Digital Products app presents this edition separately from the original concept.
 
 ## Delivery experience
 
