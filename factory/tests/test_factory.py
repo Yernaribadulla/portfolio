@@ -36,6 +36,17 @@ def catalog():
 
 
 class MoneyTests(unittest.TestCase):
+    def test_catalog_rejects_values_incompatible_with_storefront(self):
+        for key, value in [("id", "draft_with_underscore"), ("image_url", "elsewhere/preview.png")]:
+            data = catalog()
+            data["products"][0][key] = value
+            with self.assertRaises(ValueError):
+                factory.validate_catalog(data)
+        data = catalog()
+        data["products"][0]["price"]["amount"] = "19"
+        with self.assertRaises(ValueError):
+            factory.validate_catalog(data)
+
     def test_report_is_per_product_and_catalog_status_is_optional(self):
         data = ledger()
         self.assertEqual(factory.finance_report(data, catalog())["product_status_from_catalog"], "in_review")

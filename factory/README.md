@@ -11,7 +11,7 @@ python -m unittest discover -s factory/tests -v
 python factory/product_factory.py package --source ../release-source --allowlist ../release-allowlist.json --out ../release.zip
 ```
 
-The catalog is `public/products.json`, the same file the product UI consumes. Do not create a second catalog. Monetary input accepts exact decimal strings or JSON numbers; supported currencies are USD, EUR, GBP, KZT, each with two decimal places. No exchange conversion is performed.
+The catalog is `public/products.json`, the same file the product UI fetches. Do not create a second catalog. Catalog prices must be JSON numbers; private ledger amounts accept exact decimal strings or JSON numbers. Supported currencies are USD, EUR, GBP, KZT, each with two decimal places. No exchange conversion is performed. Product IDs are lowercase hyphen-separated slugs; preview paths live under `products/`.
 
 `render-catalog` generates `public/products/index.html` from that single catalog for readers and crawlers without JavaScript. It escapes product content, hides drafts, validates HTTPS external links, and only renders purchase links for available items. The canonical URL is the portfolio's `/products/` page. Pending products are labelled awaiting approval, with a planned price rather than an available offer.
 

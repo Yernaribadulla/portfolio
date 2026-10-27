@@ -23,6 +23,8 @@ Builds now require **Python 3.11+** as well as Node. If Python is not on PATH, s
 
 See [factory operations](factory/README.md) for packaging, private evidence-based financial reports, and local catalog updates. Run `npm run test:products` for storefront regression tests, `npm test` for all browser checks, and `python -m unittest discover -s factory/tests -v` for the offline pipeline. Real financial ledgers stay **outside this repository**; the provided fixtures are synthetic. No analytics collector or paid service is added: site visits and outbound clicks remain unknown until a real data source is configured.
 
+CI uses `playwright.ci.config.ts` with a 960×640 viewport and 0.35 device scale to bound software WebGL rendering. It still executes the real renderer and the same behavioral assertions; visual parity and full-size checks are separate local checks. The storefront fetches the public JSON with loading, retry and invalid-data states instead of importing a public asset into JavaScript.
+
 [Integration notes and verification](ORBITAL.md) · [Horizon licenses](HORIZON_NOTICES.md) · [Original portfolio assets](ASSETS.md)
 
 ---

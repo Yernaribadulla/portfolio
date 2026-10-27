@@ -114,7 +114,7 @@ def validate_catalog(data):
     for product in data["products"]:
         require(isinstance(product, dict), "product must be an object")
         product_id = product.get("id", "")
-        require(isinstance(product_id, str) and ID.fullmatch(product_id), "invalid product id")
+        require(isinstance(product_id, str) and len(product_id) <= 80 and re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", product_id), "invalid product slug")
         require(product_id not in seen, f"duplicate product id: {product_id}")
         seen.add(product_id)
         for key in ("name", "summary", "description", "version"):
@@ -122,6 +122,7 @@ def validate_catalog(data):
         require(product.get("category") in {"web_template", "developer_tool"}, "invalid category")
         require(product.get("status") in {"draft", "in_review", "available", "paused"}, "invalid status")
         require(isinstance(product.get("price"), dict), "price object required")
+        require(isinstance(product["price"].get("amount"), (int, Decimal)) and not isinstance(product["price"].get("amount"), bool), "catalog price amount must be a JSON number")
         money(product["price"].get("amount"), product["price"].get("currency"))
         for key in ("demo_url", "product_url", "purchase_url"):
             require(key in product, f"{key} required (null is allowed)")
@@ -129,6 +130,7 @@ def validate_catalog(data):
         require(product["status"] != "available" or product["purchase_url"] is not None, "available product requires a purchase URL")
         require(product["status"] == "available" or product["purchase_url"] is None, "purchase URL must be null until available")
         relative_path(product.get("image_url"))
+        require(bool(re.fullmatch(r"products/[a-zA-Z0-9_./-]+", product["image_url"])), "catalog image must be a path under products/")
         for key in ("features", "requirements", "limitations"):
             require(isinstance(product.get(key), list) and all(isinstance(item, str) and item.strip() for item in product[key]), f"{key} must contain nonempty strings")
         require(isinstance(product.get("updated_at"), str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", product["updated_at"]), "updated_at requires YYYY-MM-DD")

@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowUpRight, Package } from 'lucide-react';
-import { products, productCategory, productStatus, productImage, httpsLink, purchaseLink, type DigitalProduct } from '../data/products';
+import { loadProducts, productCategory, productStatus, productImage, httpsLink, purchaseLink, type DigitalProduct } from '../data/products';
 import '../styles/products.css';
 
 const external = { target: '_blank', rel: 'noopener noreferrer' };
@@ -20,8 +20,34 @@ function Facts({ title, items }: { title: string; items: string[] }) {
 
 export default function DigitalProducts({ selectedId }: { selectedId: string | null }) {
   const heading = useRef<HTMLHeadingElement>(null);
+  const [catalogue, setCatalogue] = useState<{ state: 'loading' } | { state: 'error' } | { state: 'ready'; products: DigitalProduct[] }>({ state: 'loading' });
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    const controller = new AbortController();
+    setCatalogue({ state: 'loading' });
+    loadProducts(controller.signal).then(products => {
+      if (!controller.signal.aborted) setCatalogue({ state: 'ready', products });
+    }).catch(() => {
+      if (!controller.signal.aborted) setCatalogue({ state: 'error' });
+    });
+    return () => controller.abort();
+  }, [attempt]);
+  useEffect(() => { heading.current?.focus({ preventScroll: true }); }, [selectedId, catalogue.state]);
+
+  if (catalogue.state === 'loading') return <article className="products-content" role="status">
+    <h2 ref={heading} tabIndex={-1}>Loading products</h2>
+    <p>Opening the current catalogue…</p>
+  </article>;
+
+  if (catalogue.state === 'error') return <article className="products-content">
+    <h2 ref={heading} tabIndex={-1}>Catalogue unavailable</h2>
+    <p role="alert">The catalogue could not be loaded. Please try again.</p>
+    <button className="primary" onClick={() => setAttempt(current => current + 1)}>Try again</button>
+    <p><a className="products-back" href="#desktop"><ArrowLeft size={15} /> Back to desktop</a></p>
+  </article>;
+
+  const products = catalogue.products;
   const selected = products.find(product => product.id === selectedId);
-  useEffect(() => { heading.current?.focus({ preventScroll: true }); }, [selectedId]);
 
   if (selectedId !== null && !selected) return <article className="products-content">
     <a className="products-back" href="#products"><ArrowLeft size={15} /> All products</a>

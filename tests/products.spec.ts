@@ -40,9 +40,11 @@ test('unknown and malformed product links offer a working way back', async ({ pa
 });
 
 test('draft products are absent from the public catalogue and direct detail routes', async ({ page }) => {
-  await page.route('**/public/products.json*', async route => {
+  await page.route('**/products.json', async route => {
     const response = await route.fetch();
-    await route.fulfill({ response, body: (await response.text()).replace(/"status":"in_review"/g, '"status":"draft"') });
+    const catalogue = await response.json();
+    catalogue.products[0].status = 'draft';
+    await route.fulfill({ response, json: catalogue });
   });
   await page.goto('./#products');
   await expect(productsWindow(page).getByText('No products are listed yet.')).toBeVisible();
@@ -66,26 +68,77 @@ test('catalogue price and review status appear before the preview and without sc
 
 test('a purchase link requires both availability and a safe HTTPS destination', async ({ page }) => {
   for (const scenario of [
-    { status: 'available', url: 'https://example.com/verified-listing', canBuy: true },
-    { status: 'in_review', url: 'https://example.com/verified-listing', canBuy: false },
-    { status: 'available', url: 'javascript:alert(1)', canBuy: false },
+    { status: 'available', url: 'https://example.com/verified-listing', canBuy: true, invalid: false },
+    { status: 'in_review', url: 'https://example.com/verified-listing', canBuy: false, invalid: false },
+    { status: 'available', url: 'javascript:alert(1)', canBuy: false, invalid: true },
   ]) {
     await page.goto('about:blank');
-    // Change only the incoming catalogue module, without altering the real catalogue.
-    await page.route('**/public/products.json*', async route => {
+    // Change only the HTTP response, without altering the real catalogue.
+    await page.route('**/products.json', async route => {
       const response = await route.fetch();
-      const source = (await response.text())
-        .replace(/"status":"in_review"/g, `"status":${JSON.stringify(scenario.status)}`)
-        .replace(/"purchase_url":null/g, `"purchase_url":${JSON.stringify(scenario.url)}`);
-      await route.fulfill({ response, body: source });
+      const catalogue = await response.json();
+      catalogue.products[0].status = scenario.status;
+      catalogue.products[0].purchase_url = scenario.url;
+      await route.fulfill({ response, json: catalogue });
     });
     await page.goto('./#products/dentara');
-    await expect(productsWindow(page).getByRole('heading', { name: 'DENTARA', exact: true })).toBeVisible();
+    await expect(productsWindow(page).getByRole('heading', { name: scenario.invalid ? 'Catalogue unavailable' : 'DENTARA', exact: true })).toBeVisible();
     const buy = productsWindow(page).getByRole('link', { name: 'Buy on marketplace', exact: true });
     await expect(buy).toHaveCount(scenario.canBuy ? 1 : 0);
     if (scenario.canBuy) await expect(buy).toHaveAttribute('href', scenario.url);
-    await page.unroute('**/public/products.json*');
+    await page.unroute('**/products.json');
   }
+});
+
+test('a failed catalogue request offers retry without exposing a purchase link', async ({ page }) => {
+  let available = false;
+  await page.route('**/products.json', async route => {
+    if (available) await route.continue();
+    else await route.fulfill({ status: 503, body: 'Unavailable' });
+  });
+  await page.goto('./#products/dentara');
+  const panel = productsWindow(page);
+  await expect(panel.getByRole('heading', { name: 'Catalogue unavailable' })).toBeVisible();
+  await expect(panel.getByRole('link', { name: /Buy/ })).toHaveCount(0);
+  available = true;
+  await panel.getByRole('button', { name: 'Try again' }).click();
+  await expect(panel.getByRole('heading', { name: 'DENTARA', exact: true })).toBeVisible();
+});
+
+test('malformed catalogue fields fail closed before showing product details', async ({ page }) => {
+  for (const invalidFields of [
+    { price: { amount: -1, currency: 'USD' } },
+    { price: { amount: 19, currency: 'ZZZ' } },
+    { status: 'approved' },
+    { features: 'not an array' },
+    { demo_url: 'javascript:alert(1)' },
+  ]) {
+    await page.goto('about:blank');
+    await page.route('**/products.json', async route => {
+      const response = await route.fetch();
+      const catalogue = await response.json();
+      Object.assign(catalogue.products[0], invalidFields);
+      await route.fulfill({ response, json: catalogue });
+    });
+    await page.goto('./#products/dentara');
+    const panel = productsWindow(page);
+    await expect(panel.getByRole('heading', { name: 'Catalogue unavailable' })).toBeVisible();
+    await expect(panel.getByRole('heading', { name: 'DENTARA', exact: true })).toHaveCount(0);
+    await expect(panel.getByRole('link', { name: /Buy/ })).toHaveCount(0);
+    await page.unroute('**/products.json');
+  }
+});
+
+test('a pending catalogue shows loading instead of a false missing-product state', async ({ page }) => {
+  let release!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/products.json', async route => { await gate; await route.continue(); });
+  await page.goto('./#products/dentara');
+  const panel = productsWindow(page);
+  await expect(panel.getByRole('heading', { name: 'Loading products' })).toBeVisible();
+  await expect(panel.getByRole('heading', { name: 'Product not found' })).toHaveCount(0);
+  release();
+  await expect(panel.getByRole('heading', { name: 'DENTARA', exact: true })).toBeVisible();
 });
 
 for (const width of [320, 390, 768]) {

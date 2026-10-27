@@ -38,4 +38,4 @@ jobs:
       - name: Install Chromium for bounded browser checks
         run: npx playwright install --with-deps chromium
       - name: Product and orbital browser checks
-        run: npx playwright test tests/products.spec.ts tests/orbital.spec.ts --workers=1
+        run: npx playwright test tests/products.spec.ts tests/orbital.spec.ts --config playwright.ci.config.ts --workers=1
